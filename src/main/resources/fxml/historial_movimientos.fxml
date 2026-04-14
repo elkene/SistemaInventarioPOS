@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      stylesheets="@../css/styles.css"
+      prefHeight="450.0" prefWidth="700.0" spacing="10" style="-fx-padding: 15;">
+    
+    <Label fx:id="lblProducto" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+    
+    <TableView fx:id="tablaMovimientos" VBox.vgrow="ALWAYS" styleClass="dialog-table">
+        <columns>
+            <TableColumn fx:id="colFecha" text="Fecha" prefWidth="130"/>
+            <TableColumn fx:id="colTipo" text="Tipo" prefWidth="90"/>
+            <TableColumn fx:id="colCantidad" text="Cantidad" prefWidth="80"/>
+            <TableColumn fx:id="colDescripcion" text="Descripción" prefWidth="280"/>
+            <TableColumn fx:id="colUsuario" text="Usuario" prefWidth="100"/>
+        </columns>
+    </TableView>
+    
+</VBox>

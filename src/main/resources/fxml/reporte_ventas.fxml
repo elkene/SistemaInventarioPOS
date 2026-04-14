@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.inventario.controllers.ReporteVentasController"
+      stylesheets="@../css/styles.css"
+      spacing="15" style="-fx-padding: 15;">
+    
+    <VBox spacing="5" style="-fx-background-color: #34495e; -fx-padding: 15; -fx-background-radius: 8;">
+        <Label text="REPORTE DE VENTAS" style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: white;"/>
+        <Label fx:id="lblPeriodo" text="Período: --" style="-fx-font-size: 13; -fx-text-fill: #ecf0f1;"/>
+        <Label fx:id="lblFechaGeneracion" text="Generado: --" style="-fx-font-size: 11; -fx-text-fill: #bdc3c7;"/>
+    </VBox>
+    
+    <HBox spacing="15" alignment="CENTER_LEFT">
+        <Label text="Desde:" style="-fx-font-weight: bold;"/>
+        <DatePicker fx:id="dateDesde" prefWidth="150"/>
+        
+        <Label text="Hasta:" style="-fx-font-weight: bold; -fx-padding: 0 0 0 10;"/>
+        <DatePicker fx:id="dateHasta" prefWidth="150"/>
+        
+        <Button text="Generar" onAction="#handleGenerarReporte" 
+                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 8 25 8 25; -fx-cursor: hand; -fx-background-radius: 4;"/>
+        
+        <Button text="Limpiar" onAction="#handleLimpiar" 
+                style="-fx-background-color: #7f8c8d; -fx-text-fill: white; -fx-padding: 8 25 8 25; -fx-cursor: hand; -fx-background-radius: 4;"/>
+        
+        <Button text="Exportar PDF" onAction="#handleExportar" 
+                style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-padding: 8 25 8 25; -fx-cursor: hand; -fx-background-radius: 4; -fx-font-weight: bold;"/>
+    </HBox>
+    
+    <HBox spacing="15" alignment="CENTER">
+        <VBox spacing="3" alignment="CENTER" style="-fx-background-color: #27ae60; -fx-padding: 15 30 15 30; -fx-background-radius: 6;">
+            <Label text="TOTAL VENTAS" style="-fx-font-size: 11; -fx-text-fill: rgba(255,255,255,0.9);"/>
+            <Label fx:id="lblTotalVentas" text="0.00" style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: white;"/>
+        </VBox>
+        
+        <VBox spacing="3" alignment="CENTER" style="-fx-background-color: #3498db; -fx-padding: 15 30 15 30; -fx-background-radius: 6;">
+            <Label text="TRANSACCIONES" style="-fx-font-size: 11; -fx-text-fill: rgba(255,255,255,0.9);"/>
+            <Label fx:id="lblCantidadVentas" text="0" style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: white;"/>
+        </VBox>
+        
+        <VBox spacing="3" alignment="CENTER" style="-fx-background-color: #9b59b6; -fx-padding: 15 30 15 30; -fx-background-radius: 6;">
+            <Label text="PROMEDIO" style="-fx-font-size: 11; -fx-text-fill: rgba(255,255,255,0.9);"/>
+            <Label fx:id="lblPromedioVenta" text="0.00" style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: white;"/>
+        </VBox>
+    </HBox>
+    
+    <Label text="Detalle de Transacciones" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+    
+    <TableView fx:id="tablaVentas" VBox.vgrow="ALWAYS" styleClass="dialog-table">
+        <columns>
+            <TableColumn fx:id="colId" text="N°" prefWidth="50"/>
+            <TableColumn fx:id="colFecha" text="Fecha y Hora" prefWidth="140"/>
+            <TableColumn fx:id="colCliente" text="Cliente" prefWidth="180"/>
+            <TableColumn fx:id="colTotal" text="Monto" prefWidth="120"/>
+            <TableColumn fx:id="colMetodoPago" text="Método de Pago" prefWidth="120"/>
+            <TableColumn fx:id="colEstado" text="Estado" prefWidth="100"/>
+        </columns>
+    </TableView>
+    
+    <Separator/>
+    
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Label text="Sistema de Inventario POS" style="-fx-font-size: 10; -fx-text-fill: #95a5a6;"/>
+    </HBox>
+    
+</VBox>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.inventario.controllers.AjusteStockDialogController"
+      stylesheets="@../css/styles.css"
+      prefHeight="350.0" prefWidth="400.0" spacing="10" style="-fx-padding: 20;">
+    
+    <Label text="Ajustar Stock" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+    
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+        <VBox spacing="10">
+            <HBox spacing="10">
+                <Label text="Producto:"/>
+                <Label fx:id="lblProductoNombre" style="-fx-font-weight: bold;"/>
+            </HBox>
+            
+            <HBox spacing="10">
+                <Label text="Stock Actual:"/>
+                <Label fx:id="lblStockActual" style="-fx-font-weight: bold;"/>
+            </HBox>
+            
+            <Separator/>
+            
+            <VBox spacing="5">
+                <Label text="Tipo de Movimiento:"/>
+                <HBox spacing="20">
+                    <RadioButton fx:id="rbEntrada" text="Entrada"/>
+                    <RadioButton fx:id="rbSalida" text="Salida"/>
+                    <RadioButton fx:id="rbAjuste" text="Ajuste"/>
+                </HBox>
+            </VBox>
+            
+            <GridPane hgap="10" vgap="5">
+                <columnConstraints>
+                    <ColumnConstraints minWidth="100" prefWidth="100"/>
+                    <ColumnConstraints hgrow="ALWAYS" prefWidth="250"/>
+                </columnConstraints>
+                
+                <Label text="Cantidad:" GridPane.columnIndex="0" GridPane.rowIndex="0" alignment="CENTER_LEFT"/>
+                <TextField fx:id="txtCantidad" GridPane.columnIndex="1" GridPane.rowIndex="0" promptText="Ingrese la cantidad"/>
+                
+                <Label text="Descripción:" GridPane.columnIndex="0" GridPane.rowIndex="1" alignment="TOP_LEFT"/>
+                <TextArea fx:id="txtDescripcion" GridPane.columnIndex="1" GridPane.rowIndex="1" prefHeight="60" wrapText="true" promptText="Motivo del ajuste (opcional)"/>
+            </GridPane>
+        </VBox>
+    </ScrollPane>
+    
+    <HBox spacing="10" alignment="CENTER_RIGHT" style="-fx-padding: 10 0 0 0;">
+        <Button fx:id="btnCancelar" text="Cancelar" style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 8 20 8 20;" onAction="#handleCancelar"/>
+        <Button fx:id="btnGuardar" text="Guardar" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 8 20 8 20;" onAction="#handleGuardar"/>
+    </HBox>
+    
+</VBox>

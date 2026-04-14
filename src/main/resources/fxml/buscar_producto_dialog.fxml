@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      stylesheets="@../css/styles.css"
+      prefHeight="400.0" prefWidth="600.0" spacing="10" style="-fx-padding: 15;">
+    
+    <Label text="Buscar Producto" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+    
+    <HBox spacing="10">
+        <TextField fx:id="txtBuscar" promptText="Buscar por nombre..." prefWidth="400" onAction="#handleBuscar"/>
+        <Button text="Buscar" onAction="#handleBuscar" style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+    </HBox>
+    
+    <TableView fx:id="tablaProductos" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colCodigo" text="Código" prefWidth="100"/>
+            <TableColumn fx:id="colNombre" text="Nombre" prefWidth="200"/>
+            <TableColumn fx:id="colCategoria" text="Categoría" prefWidth="120"/>
+            <TableColumn fx:id="colPrecio" text="Precio" prefWidth="80"/>
+            <TableColumn fx:id="colStock" text="Stock" prefWidth="60"/>
+        </columns>
+    </TableView>
+    
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button fx:id="btnCancelar" text="Cancelar" onAction="#handleCancelar" style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 8 20 8 20;"/>
+        <Button fx:id="btnSeleccionar" text="Seleccionar" onAction="#handleSeleccionar" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 8 20 8 20;"/>
+    </HBox>
+    
+</VBox>

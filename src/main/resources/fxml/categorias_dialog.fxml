@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.inventario.controllers.CategoriasDialogController"
+      stylesheets="@../css/styles.css"
+      prefHeight="450.0" prefWidth="550.0" spacing="10" style="-fx-padding: 15;">
+    
+    <Label text="Gestionar Categorías" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+    
+    <TableView fx:id="tablaCategorias" prefHeight="150" VBox.vgrow="NEVER" styleClass="dialog-table">
+        <columns>
+            <TableColumn fx:id="colNombre" text="Nombre" prefWidth="150" />
+            <TableColumn fx:id="colDescripcion" text="Descripción" prefWidth="350"/>
+        </columns>
+    </TableView>
+    
+    <Separator/>
+    
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+        <VBox spacing="10">
+            <GridPane hgap="10" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints minWidth="100" prefWidth="100"/>
+                    <ColumnConstraints hgrow="ALWAYS" prefWidth="350"/>
+                </columnConstraints>
+                
+                <Label text="Nombre:" GridPane.columnIndex="0" GridPane.rowIndex="0" alignment="CENTER_LEFT"/>
+                <TextField fx:id="txtNombre" GridPane.columnIndex="1" GridPane.rowIndex="0" prefWidth="350"/>
+                
+                <Label text="Descripción:" GridPane.columnIndex="0" GridPane.rowIndex="1" alignment="TOP_LEFT"/>
+                <TextArea fx:id="txtDescripcion" GridPane.columnIndex="1" GridPane.rowIndex="1" prefHeight="80" wrapText="true" prefWidth="350"/>
+            </GridPane>
+        </VBox>
+    </ScrollPane>
+    
+    <HBox spacing="10" alignment="CENTER" style="-fx-padding: 10 0 0 0;">
+        <Button fx:id="btnNuevo" text="Nuevo" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 8 15 8 15;" onAction="#handleNuevo"/>
+        <Button fx:id="btnGuardar" text="Guardar" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-padding: 8 15 8 15;" onAction="#handleGuardar"/>
+        <Button fx:id="btnEliminar" text="Eliminar" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-padding: 8 15 8 15;" onAction="#handleEliminar"/>
+        <Button fx:id="btnCancelar" text="Cerrar" style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 8 15 8 15;" onAction="#handleCancelar"/>
+    </HBox>
+    
+</VBox>

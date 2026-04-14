@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      stylesheets="@../css/styles.css"
+      prefHeight="550.0" prefWidth="500.0" spacing="15" style="-fx-padding: 20;">
+    
+    <Label text="Datos del Cliente" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+    
+    <GridPane hgap="15" vgap="10">
+        <columnConstraints>
+            <ColumnConstraints minWidth="120"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+        </columnConstraints>
+        
+        <Label text="Cédula:" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="txtCedula" GridPane.columnIndex="1" GridPane.rowIndex="0" promptText="Ej: 12345678"/>
+        
+        <Label text="Nombre:" GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="txtNombre" GridPane.columnIndex="1" GridPane.rowIndex="1" promptText="Nombre completo"/>
+        
+        <Label text="Email:" GridPane.columnIndex="0" GridPane.rowIndex="2" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="txtEmail" GridPane.columnIndex="1" GridPane.rowIndex="2" promptText="email@ejemplo.com"/>
+        
+        <Label text="Teléfono:" GridPane.columnIndex="0" GridPane.rowIndex="3" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="txtTelefono" GridPane.columnIndex="1" GridPane.rowIndex="3" promptText="0412-1234567"/>
+        
+        <Label text="Dirección:" GridPane.columnIndex="0" GridPane.rowIndex="4" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="txtDireccion" GridPane.columnIndex="1" GridPane.rowIndex="4" promptText="Dirección completa"/>
+        
+        <Label text="Ciudad:" GridPane.columnIndex="0" GridPane.rowIndex="5" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="txtCiudad" GridPane.columnIndex="1" GridPane.rowIndex="5" promptText="Ciudad"/>
+        
+        <Label text="Estado:" GridPane.columnIndex="0" GridPane.rowIndex="6" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="txtEstado" GridPane.columnIndex="1" GridPane.rowIndex="6" promptText="Estado/Región"/>
+        
+        <Label text="Saldo Crédito:" GridPane.columnIndex="0" GridPane.rowIndex="7" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="txtSaldoCredito" GridPane.columnIndex="1" GridPane.rowIndex="7" promptText="0.00"/>
+        
+    </GridPane>
+    
+    <Region VBox.vgrow="ALWAYS"/>
+    
+    <Separator/>
+    
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Cancelar" onAction="#handleCancelar" style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 10 25 10 25;"/>
+        <Button text="Guardar" onAction="#handleGuardar" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 10 25 10 25;"/>
+    </HBox>
+    
+</VBox>

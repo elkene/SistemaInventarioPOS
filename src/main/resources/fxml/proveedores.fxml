@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.inventario.controllers.ProveedoresController"
+            stylesheets="@../css/styles.css"
+            prefHeight="650.0" prefWidth="1100.0">
+    
+    <VBox spacing="15" style="-fx-padding: 15;">
+        
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="GESTIÓN DE PROVEEDORES" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="lblTotalProveedores" text="0 proveedores" style="-fx-font-size: 14; -fx-text-fill: #7f8c8d;"/>
+        </HBox>
+        
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <TextField fx:id="txtBuscar" promptText="Buscar por nombre..." prefWidth="350" onAction="#handleBuscar"/>
+            <Button text="Buscar" onAction="#handleBuscar" style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+            <Button text="Refrescar" onAction="#handleRefrescar" style="-fx-background-color: #95a5a6; -fx-text-fill: white;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="+ Nuevo Proveedor" onAction="#handleNuevo" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 8 20 8 20;"/>
+        </HBox>
+        
+        <TableView fx:id="tablaProveedores" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+                <TableColumn fx:id="colRif" text="RIF" prefWidth="100"/>
+                <TableColumn fx:id="colNombre" text="Nombre" prefWidth="200"/>
+                <TableColumn fx:id="colTelefono" text="Teléfono" prefWidth="120"/>
+                <TableColumn fx:id="colEmail" text="Email" prefWidth="180"/>
+                <TableColumn fx:id="colCiudad" text="Ciudad" prefWidth="120"/>
+                <TableColumn fx:id="colCondiciones" text="Condiciones de Pago" prefWidth="150"/>
+                <TableColumn fx:id="colAcciones" text="Acciones" prefWidth="150"/>
+            </columns>
+        </TableView>
+        
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <Label text="Doble clic en una fila para editar" style="-fx-text-fill: #7f8c8d; -fx-font-size: 11;"/>
+        </HBox>
+        
+    </VBox>
+    
+</AnchorPane>

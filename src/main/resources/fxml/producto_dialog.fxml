@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.inventario.controllers.ProductoDialogController"
+            stylesheets="@../css/styles.css"
+            prefHeight="600.0" prefWidth="550.0">
+    
+    <VBox spacing="20" style="-fx-padding: 25;" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" 
+          AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="70">
+        
+        <Label text="Datos del Producto" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+        
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background: transparent;">
+            <VBox spacing="15">
+                <GridPane hgap="20" vgap="12">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="150"/>
+                        <ColumnConstraints hgrow="ALWAYS"/>
+                    </columnConstraints>
+
+                    <Label text="Código:" GridPane.columnIndex="0" GridPane.rowIndex="0" alignment="CENTER_LEFT" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="txtCodigo" GridPane.columnIndex="1" GridPane.rowIndex="0" promptText="Código del producto"/>
+
+                    <Label text="Nombre:" GridPane.columnIndex="0" GridPane.rowIndex="1" alignment="CENTER_LEFT" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="txtNombre" GridPane.columnIndex="1" GridPane.rowIndex="1" promptText="Nombre del producto"/>
+
+                    <Label text="Descripción:" GridPane.columnIndex="0" GridPane.rowIndex="2" alignment="TOP_LEFT" style="-fx-font-weight: bold;"/>
+                    <TextArea fx:id="txtDescripcion" GridPane.columnIndex="1" GridPane.rowIndex="2" prefHeight="70" wrapText="true" promptText="Descripción detallada del producto"/>
+
+                    <Label text="Categoría:" GridPane.columnIndex="0" GridPane.rowIndex="3" alignment="CENTER_LEFT" style="-fx-font-weight: bold;"/>
+                    <ComboBox fx:id="cmbCategoria" GridPane.columnIndex="1" GridPane.rowIndex="3" promptText="Seleccione una categoría"/>
+
+                    <Label text="Precio Compra:" GridPane.columnIndex="0" GridPane.rowIndex="4" alignment="CENTER_LEFT" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="txtPrecioCompra" GridPane.columnIndex="1" GridPane.rowIndex="4" promptText="0.00"/>
+
+                    <Label text="Precio Venta:" GridPane.columnIndex="0" GridPane.rowIndex="5" alignment="CENTER_LEFT" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="txtPrecioVenta" GridPane.columnIndex="1" GridPane.rowIndex="5" promptText="0.00"/>
+
+                    <Label text="Stock:" GridPane.columnIndex="0" GridPane.rowIndex="6" alignment="CENTER_LEFT" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="txtStock" GridPane.columnIndex="1" GridPane.rowIndex="6" promptText="Cantidad en inventario"/>
+
+                    <Label text="Stock Mínimo:" GridPane.columnIndex="0" GridPane.rowIndex="7" alignment="CENTER_LEFT" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="txtStockMinimo" GridPane.columnIndex="1" GridPane.rowIndex="7" promptText="Cantidad mínima para alertas"/>
+                </GridPane>
+            </VBox>
+        </ScrollPane>
+        
+    </VBox>
+    
+    <HBox spacing="10" alignment="CENTER_RIGHT" style="-fx-padding: 15;" 
+          AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0">
+        <Button fx:id="btnCancelar" text="Cancelar" style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 12 30 12 30;" onAction="#handleCancelar"/>
+        <Button fx:id="btnGuardar" text="Guardar" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 12 30 12 30;" onAction="#handleGuardar"/>
+    </HBox>
+    
+</AnchorPane>

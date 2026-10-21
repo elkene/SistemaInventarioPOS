@@ -1,5 +1,7 @@
 # Sistema de Inventario y Punto de Venta
 
+© 2026 Kenneth Armenta Ibarra. Todos los derechos reservados. Ver [Autor y licencia](#autor-y-licencia).
+
 Aplicación de escritorio (JavaFX) para controlar inventario, ventas, clientes y proveedores de **una sucursal en una sola computadora**. Los datos se guardan en una base de datos **H2 embebida**: es un archivo local, así que no hay que instalar ni administrar un servidor de base de datos.
 
 Para el uso diario (vender, corte de caja, respaldos) consulta [MANUAL_DE_USO.md](MANUAL_DE_USO.md).
@@ -81,6 +83,13 @@ Equivale a `mvn test -Dui=true -Dtest=PruebaInterfazVentaTest`. Un robot maneja 
 
 Abre ventanas durante unos 40 segundos (no toques el mouse) y usa una base de datos temporal. Las capturas de cada pantalla quedan en `target\capturas-interfaz`. El `mvn test` normal la omite. Conviene correrla antes de entregar una versión nueva.
 
+## Ícono de la aplicación
+
+- `src/main/resources/icons/app.png` (512×512): ícono de todas las ventanas y diálogos. Se asigna en `Main`.
+- `src/main/packaging/icono.ico`: ícono del `.exe` y del acceso directo. Trae los tamaños de 16 a 256 px y se generó a partir del PNG.
+
+Para cambiar el ícono hay que reemplazar los dos archivos y volver a ejecutar `empaquetar.bat`.
+
 ## Generar la versión para la laptop de la sucursal
 
 ```bat
@@ -139,6 +148,19 @@ Conéctate con la URL `jdbc:h2:file:%USERPROFILE%\SistemaInventarioPOS\datos\inv
 
 Los datos iniciales (`data_inicial.sql`) solo se cargan en una base nueva. Si algún día necesitas transformar datos existentes (renombrar columnas, mover información), conviene adoptar una herramienta de migraciones con versiones, como Flyway.
 
-## Licencia
+## Autor y licencia
 
-Ver [LICENSE](LICENSE).
+© 2026 **Kenneth Armenta Ibarra**. Todos los derechos reservados.
+
+Software propietario: no se permite copiarlo, distribuirlo, venderlo ni modificarlo sin autorización por escrito del autor. Los términos completos están en [LICENSE](LICENSE), que también se incluye en el paquete como `LICENCIA.txt`.
+
+Dónde aparece la autoría:
+
+- en la ventana **Acerca de** de la aplicación;
+- en el pie del login;
+- en las propiedades del `.exe` (fabricante y copyright);
+- en el manifiesto del `.jar` y en el `pom.xml`.
+
+Los datos del autor se definen en `config/AppInfo.java`. La versión se toma del `pom.xml`.
+
+Contacto: armentakenneth00@gmail.com

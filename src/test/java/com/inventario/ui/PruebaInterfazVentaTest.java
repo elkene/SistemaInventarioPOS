@@ -4,8 +4,8 @@ import com.inventario.database.ConnectionFactory;
 import com.inventario.models.Producto;
 import com.inventario.services.ProductoService;
 import com.inventario.services.VentaService;
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.parser.PdfTextExtractor;
+import com.lowagie.text.pdf.PdfReader;
+import com.lowagie.text.pdf.parser.PdfTextExtractor;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
@@ -164,7 +164,7 @@ public class PruebaInterfazVentaTest {
         responder(reimp, "Aceptar");
         espera(1500);
         verificar(Files.exists(home().resolve("tickets/ticket_1_copia.pdf")), "se generó la copia del ticket");
-        String copia = PdfTextExtractor.getTextFromPage(new PdfReader(home().resolve("tickets/ticket_1_copia.pdf").toString()), 1);
+        String copia = new PdfTextExtractor(new PdfReader(home().resolve("tickets/ticket_1_copia.pdf").toString())).getTextFromPage(1);
         verificar(copia.contains("REIMPRESI") && copia.contains("$100.00") && copia.contains("Cambio") && copia.contains("$30.00"),
                 "la copia muestra paga con $100.00 y cambio $30.00");
 

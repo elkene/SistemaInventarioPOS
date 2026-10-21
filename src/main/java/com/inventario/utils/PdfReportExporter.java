@@ -1,9 +1,11 @@
 package com.inventario.utils;
 
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
+import com.lowagie.text.*;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
+import com.inventario.config.AppInfo;
+import java.awt.Color;
 import com.inventario.models.Producto;
 import com.inventario.models.Venta;
 import com.inventario.models.MovimientoInventario;
@@ -26,15 +28,15 @@ public class PdfReportExporter {
     
     private static final Logger logger = LoggerFactory.getLogger(PdfReportExporter.class);
     
-    private static final Font TITLE_FONT = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD);
-    private static final Font SUBTITLE_FONT = new Font(Font.FontFamily.HELVETICA, 11, Font.NORMAL);
-    private static final Font HEADER_FONT = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD);
-    private static final Font CELL_FONT = new Font(Font.FontFamily.HELVETICA, 9, Font.NORMAL);
-    private static final Font SUMMARY_FONT = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD);
-    private static final Font FOOTER_FONT = new Font(Font.FontFamily.HELVETICA, 8, Font.ITALIC);
+    private static final Font TITLE_FONT = new Font(Font.HELVETICA, 18, Font.BOLD);
+    private static final Font SUBTITLE_FONT = new Font(Font.HELVETICA, 11, Font.NORMAL);
+    private static final Font HEADER_FONT = new Font(Font.HELVETICA, 10, Font.BOLD);
+    private static final Font CELL_FONT = new Font(Font.HELVETICA, 9, Font.NORMAL);
+    private static final Font SUMMARY_FONT = new Font(Font.HELVETICA, 10, Font.BOLD);
+    private static final Font FOOTER_FONT = new Font(Font.HELVETICA, 8, Font.ITALIC);
     
-    private static final BaseColor HEADER_COLOR = new BaseColor(52, 73, 94);
-    private static final BaseColor ALT_ROW_COLOR = new BaseColor(236, 240, 241);
+    private static final Color HEADER_COLOR = new Color(52, 73, 94);
+    private static final Color ALT_ROW_COLOR = new Color(236, 240, 241);
     
     private static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
@@ -132,9 +134,9 @@ public class PdfReportExporter {
         summaryTable.setWidthPercentage(100);
         summaryTable.setSpacingAfter(15);
         
-        addSummaryCell(summaryTable, "TOTAL VENTAS", formatCurrency(totalVentas), new BaseColor(39, 174, 96));
-        addSummaryCell(summaryTable, "TRANSACCIONES", String.valueOf(cantidadVentas), new BaseColor(52, 152, 219));
-        addSummaryCell(summaryTable, "PROMEDIO", formatCurrency(promedioVenta), new BaseColor(155, 89, 182));
+        addSummaryCell(summaryTable, "TOTAL VENTAS", formatCurrency(totalVentas), new Color(39, 174, 96));
+        addSummaryCell(summaryTable, "TRANSACCIONES", String.valueOf(cantidadVentas), new Color(52, 152, 219));
+        addSummaryCell(summaryTable, "PROMEDIO", formatCurrency(promedioVenta), new Color(155, 89, 182));
         
         document.add(summaryTable);
     }
@@ -145,10 +147,10 @@ public class PdfReportExporter {
         summaryTable.setWidthPercentage(100);
         summaryTable.setSpacingAfter(15);
         
-        addSummaryCell(summaryTable, "TOTAL PRODUCTOS", String.valueOf(totalProductos), new BaseColor(52, 152, 219));
-        addSummaryCell(summaryTable, "STOCK TOTAL", String.format("%,d", stockTotal), new BaseColor(39, 174, 96));
-        addSummaryCell(summaryTable, "VALOR INVENTARIO", formatCurrency(valorInventario), new BaseColor(230, 126, 34));
-        addSummaryCell(summaryTable, "STOCK BAJO", String.valueOf(stockBajo), new BaseColor(231, 76, 60));
+        addSummaryCell(summaryTable, "TOTAL PRODUCTOS", String.valueOf(totalProductos), new Color(52, 152, 219));
+        addSummaryCell(summaryTable, "STOCK TOTAL", String.format("%,d", stockTotal), new Color(39, 174, 96));
+        addSummaryCell(summaryTable, "VALOR INVENTARIO", formatCurrency(valorInventario), new Color(230, 126, 34));
+        addSummaryCell(summaryTable, "STOCK BAJO", String.valueOf(stockBajo), new Color(231, 76, 60));
         
         document.add(summaryTable);
     }
@@ -159,10 +161,10 @@ public class PdfReportExporter {
         summaryTable.setWidthPercentage(100);
         summaryTable.setSpacingAfter(15);
         
-        addSummaryCell(summaryTable, "ENTRADAS", String.format("%,d", totalEntradas), new BaseColor(39, 174, 96));
-        addSummaryCell(summaryTable, "SALIDAS", String.format("%,d", totalSalidas), new BaseColor(231, 76, 60));
-        addSummaryCell(summaryTable, "AJUSTES", String.format("%,d", totalAjustes), new BaseColor(52, 152, 219));
-        addSummaryCell(summaryTable, "TOTAL MOV.", String.format("%,d", totalEntradas + totalSalidas + totalAjustes), new BaseColor(155, 89, 182));
+        addSummaryCell(summaryTable, "ENTRADAS", String.format("%,d", totalEntradas), new Color(39, 174, 96));
+        addSummaryCell(summaryTable, "SALIDAS", String.format("%,d", totalSalidas), new Color(231, 76, 60));
+        addSummaryCell(summaryTable, "AJUSTES", String.format("%,d", totalAjustes), new Color(52, 152, 219));
+        addSummaryCell(summaryTable, "TOTAL MOV.", String.format("%,d", totalEntradas + totalSalidas + totalAjustes), new Color(155, 89, 182));
         
         document.add(summaryTable);
     }
@@ -173,15 +175,15 @@ public class PdfReportExporter {
         summaryTable.setWidthPercentage(100);
         summaryTable.setSpacingAfter(15);
         
-        addSummaryCell(summaryTable, "TOTAL VENTAS", formatCurrency(totalVentas), new BaseColor(52, 152, 219));
-        addSummaryCell(summaryTable, "COSTO TOTAL", formatCurrency(costoTotal), new BaseColor(231, 76, 60));
-        addSummaryCell(summaryTable, "GANANCIA BRUTA", formatCurrency(gananciaBruta), new BaseColor(39, 174, 96));
-        addSummaryCell(summaryTable, "MARGEN", String.format("%.2f%%", margen), new BaseColor(155, 89, 182));
+        addSummaryCell(summaryTable, "TOTAL VENTAS", formatCurrency(totalVentas), new Color(52, 152, 219));
+        addSummaryCell(summaryTable, "COSTO TOTAL", formatCurrency(costoTotal), new Color(231, 76, 60));
+        addSummaryCell(summaryTable, "GANANCIA BRUTA", formatCurrency(gananciaBruta), new Color(39, 174, 96));
+        addSummaryCell(summaryTable, "MARGEN", String.format("%.2f%%", margen), new Color(155, 89, 182));
         
         document.add(summaryTable);
     }
     
-    private static void addSummaryCell(PdfPTable table, String label, String value, BaseColor color) {
+    private static void addSummaryCell(PdfPTable table, String label, String value, Color color) {
         PdfPCell cell = new PdfPCell();
         cell.setBackgroundColor(color);
         cell.setPadding(12);
@@ -189,7 +191,7 @@ public class PdfReportExporter {
         
         Paragraph p = new Paragraph();
         p.add(new Chunk(label + "\n", HEADER_FONT));
-        p.add(new Chunk(value, new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD)));
+        p.add(new Chunk(value, new Font(Font.HELVETICA, 14, Font.BOLD)));
         
         cell.addElement(p);
         table.addCell(cell);
@@ -207,7 +209,7 @@ public class PdfReportExporter {
         
         int i = 0;
         for (Venta venta : ventas) {
-            BaseColor rowColor = (i % 2 == 0) ? BaseColor.WHITE : ALT_ROW_COLOR;
+            Color rowColor = (i % 2 == 0) ? Color.WHITE : ALT_ROW_COLOR;
             
             addTableCell(table, String.valueOf(venta.getId()), rowColor);
             addTableCell(table, formatDateTime(venta.getFechaCreacion()), rowColor);
@@ -234,7 +236,7 @@ public class PdfReportExporter {
         
         int i = 0;
         for (Producto producto : productos) {
-            BaseColor rowColor = (i % 2 == 0) ? BaseColor.WHITE : ALT_ROW_COLOR;
+            Color rowColor = (i % 2 == 0) ? Color.WHITE : ALT_ROW_COLOR;
             
             addTableCell(table, producto.getCodigo() != null ? producto.getCodigo() : "-", rowColor);
             addTableCell(table, producto.getNombre() != null ? producto.getNombre() : "-", rowColor);
@@ -263,7 +265,7 @@ public class PdfReportExporter {
         
         int i = 0;
         for (MovimientoInventario mov : movimientos) {
-            BaseColor rowColor = (i % 2 == 0) ? BaseColor.WHITE : ALT_ROW_COLOR;
+            Color rowColor = (i % 2 == 0) ? Color.WHITE : ALT_ROW_COLOR;
             
             addTableCell(table, formatDateTime(mov.getFechaCreacion()), rowColor);
             addTableCell(table, mov.getProductoNombre() != null ? mov.getProductoNombre() : "-", rowColor);
@@ -290,7 +292,7 @@ public class PdfReportExporter {
         
         int i = 0;
         for (GananciasRow row : ventas) {
-            BaseColor rowColor = (i % 2 == 0) ? BaseColor.WHITE : ALT_ROW_COLOR;
+            Color rowColor = (i % 2 == 0) ? Color.WHITE : ALT_ROW_COLOR;
             
             addTableCell(table, String.valueOf(row.id), rowColor);
             addTableCell(table, row.fecha != null ? row.fecha.format(dateFormatter) : "-", rowColor);
@@ -315,7 +317,7 @@ public class PdfReportExporter {
         }
     }
     
-    private static void addTableCell(PdfPTable table, String text, BaseColor bgColor) {
+    private static void addTableCell(PdfPTable table, String text, Color bgColor) {
         PdfPCell cell = new PdfPCell(new Phrase(text != null ? text : "-", CELL_FONT));
         cell.setBackgroundColor(bgColor);
         cell.setPadding(6);
@@ -326,8 +328,7 @@ public class PdfReportExporter {
     private static void addFooter(Document document) throws DocumentException {
         Paragraph footer = new Paragraph();
         footer.setSpacingBefore(20);
-        footer.add(new Chunk("Sistema de Inventario POS - ", FOOTER_FONT));
-        footer.add(new Chunk("Página ", FOOTER_FONT));
+        footer.add(new Chunk(AppInfo.NOMBRE + " · " + AppInfo.COPYRIGHT, FOOTER_FONT));
         
         document.add(footer);
     }

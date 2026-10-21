@@ -13,6 +13,7 @@
         <HBox spacing="15" style="-fx-background-color: #2c3e50; -fx-padding: 10;" alignment="CENTER_RIGHT">
             <Label fx:id="usuarioLabel" text="Usuario" style="-fx-text-fill: white; -fx-font-size: 12;"/>
             <Label fx:id="horaLabel" text="Hora" style="-fx-text-fill: white; -fx-font-size: 12;"/>
+            <Button text="Acerca de" style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-cursor: hand;" onAction="#handleAcercaDe"/>
             <Button text="Cambiar contraseña" style="-fx-background-color: #7f8c8d; -fx-text-fill: white; -fx-cursor: hand;" onAction="#handleCambiarPassword"/>
             <Button fx:id="logoutBtn" text="CERRAR SESIÓN" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;" onAction="#handleLogout"/>
         </HBox>

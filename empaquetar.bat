@@ -26,6 +26,10 @@ REM "Iniciar sistema.cmd" lo usa para arrancar aunque Windows bloquee el .exe si
 jpackage --type %TIPO% --name SistemaInventarioPOS --app-version 1.1.0 ^
     --input dist\entrada --main-jar sistema-inventario-pos.jar --main-class com.inventario.Launcher ^
     --jlink-options "--strip-debug --no-man-pages --no-header-files" ^
+    --icon src\main\packaging\icono.ico ^
+    --vendor "Kenneth Armenta Ibarra" ^
+    --copyright "Copyright (c) 2026 Kenneth Armenta Ibarra. Todos los derechos reservados." ^
+    --description "Sistema de Inventario y Punto de Venta" ^
     --dest dist %OPCIONES_MSI%
 if %errorlevel% neq 0 (
     echo Error en jpackage
@@ -36,9 +40,11 @@ if "%TIPO%"=="app-image" (
     > "dist\SistemaInventarioPOS\Iniciar sistema.cmd" (
         echo @start "" "%%~dp0runtime\bin\javaw.exe" -jar "%%~dp0app\sistema-inventario-pos.jar" %%*
     )
+    copy src\main\packaging\icono.ico dist\SistemaInventarioPOS\ >nul
+    copy LICENSE "dist\SistemaInventarioPOS\LICENCIA.txt" >nul
     REM Doble clic en la laptop: crea en el escritorio el acceso directo "Sistema POS" a javaw.exe
     > "dist\SistemaInventarioPOS\Crear acceso directo.cmd" (
-        echo @powershell -NoProfile -Command "$d='%%~dp0'; $s=(New-Object -ComObject WScript.Shell).CreateShortcut([Environment]::GetFolderPath('Desktop')+'\Sistema POS.lnk'); $s.TargetPath=$d+'runtime\bin\javaw.exe'; $s.Arguments='-jar \"'+$d+'app\sistema-inventario-pos.jar\"'; $s.WorkingDirectory=$d; $s.IconLocation=$d+'SistemaInventarioPOS.exe,0'; $s.Description='Sistema de Inventario y Punto de Venta'; $s.Save()"
+        echo @powershell -NoProfile -Command "$d='%%~dp0'; $s=(New-Object -ComObject WScript.Shell).CreateShortcut([Environment]::GetFolderPath('Desktop')+'\Sistema POS.lnk'); $s.TargetPath=$d+'runtime\bin\javaw.exe'; $s.Arguments='-jar \"'+$d+'app\sistema-inventario-pos.jar\"'; $s.WorkingDirectory=$d; $s.IconLocation=$d+'icono.ico,0'; $s.Description='Sistema de Inventario y Punto de Venta'; $s.Save()"
         echo @echo Acceso directo "Sistema POS" creado en el escritorio.
         echo @pause
     )

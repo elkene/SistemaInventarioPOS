@@ -9,8 +9,8 @@ import com.inventario.models.Producto;
 import com.inventario.models.Venta;
 import com.inventario.utils.RespaldoUtil;
 import com.inventario.utils.TicketPdf;
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.parser.PdfTextExtractor;
+import com.lowagie.text.pdf.PdfReader;
+import com.lowagie.text.pdf.parser.PdfTextExtractor;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -155,7 +155,7 @@ public class VentaServiceTest {
         assertEquals(0, new BigDecimal("20").compareTo(guardada.getCambio()));
 
         Path copia = TicketPdf.reimpresion(guardada, ventas.obtenerDetallesVenta(venta.getId()));
-        String texto = PdfTextExtractor.getTextFromPage(new PdfReader(copia.toString()), 1);
+        String texto = new PdfTextExtractor(new PdfReader(copia.toString())).getTextFromPage(1);
         assertTrue("el ticket reimpreso debe mostrar el pago: " + texto, texto.contains("$50.00"));
         assertTrue("el ticket reimpreso debe mostrar el cambio: " + texto, texto.contains("Cambio") && texto.contains("$20.00"));
     }

@@ -19,8 +19,9 @@
                 </Label>
             </HBox>
             
-            <VBox alignment="TOP_CENTER" spacing="25" style="-fx-background-color: white; -fx-border-radius: 10; -fx-border-color: #ddd; -fx-border-width: 1;" 
-                  prefWidth="400" prefHeight="350">
+            <!-- maxWidth/maxHeight: la tarjeta conserva su tamaño y queda centrada al maximizar -->
+            <VBox alignment="TOP_CENTER" spacing="25" style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #ddd; -fx-border-width: 1;"
+                  prefWidth="560" maxWidth="560" maxHeight="-Infinity">
                 
                 <HBox alignment="CENTER" style="-fx-padding: 20 0 10 0;">
                     <Label text="Ingresar al Sistema" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #333;"/>
@@ -46,7 +47,9 @@
                        wrapText="true" alignment="CENTER" style="-fx-padding: 0 20 0 20;"/>
                 
             </VBox>
-            
+
+            <Label fx:id="lblCopyright" style="-fx-font-size: 11; -fx-text-fill: #888;"/>
+
         </VBox>
     </center>
     

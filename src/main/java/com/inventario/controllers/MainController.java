@@ -1,6 +1,9 @@
 package com.inventario.controllers;
 
+import com.inventario.config.AppInfo;
 import com.inventario.config.AppPaths;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import com.inventario.config.SessionManager;
 import com.inventario.exceptions.AuthenticationException;
 import com.inventario.services.AuthenticationService;
@@ -263,6 +266,30 @@ public class MainController {
             logger.error("Error con respaldos", e);
             AlertUtil.showError("Error", "No se pudo completar la operación: " + e.getMessage());
         }
+    }
+
+    @FXML
+    private void handleAcercaDe() {
+        Alert acerca = new Alert(Alert.AlertType.INFORMATION);
+        acerca.setTitle("Acerca de");
+        acerca.setHeaderText(AppInfo.NOMBRE + "\nVersión " + AppInfo.version());
+        ImageView icono = new ImageView(new Image(getClass().getResourceAsStream("/icons/app.png")));
+        icono.setFitWidth(64);
+        icono.setPreserveRatio(true);
+        acerca.setGraphic(icono);
+        acerca.setContentText(
+                "Desarrollado por: " + AppInfo.AUTOR + "\n" +
+                "Contacto: " + AppInfo.CONTACTO + "\n\n" +
+                AppInfo.COPYRIGHT + "\n\n" +
+                "Software propietario. Queda prohibida su copia, distribución, venta o modificación " +
+                "sin autorización por escrito del autor. Consulte el archivo LICENCIA.txt.\n\n" +
+                "Incluye bibliotecas de código abierto (OpenJFX, H2, HikariCP, SLF4J, Spring Security " +
+                "Crypto, Apache Commons Logging, OpenPDF) bajo sus propias licencias.");
+        // Sin esto el Alert corta el texto largo con "..."
+        acerca.getDialogPane().setPrefWidth(500);
+        acerca.getDialogPane().setMinHeight(javafx.scene.layout.Region.USE_PREF_SIZE);
+        acerca.initOwner(logoutBtn.getScene().getWindow());
+        acerca.showAndWait();
     }
 
     @FXML

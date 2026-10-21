@@ -1,5 +1,6 @@
 package com.inventario.controllers;
 
+import com.inventario.config.AppInfo;
 import com.inventario.services.AuthenticationService;
 import com.inventario.models.Usuario;
 import com.inventario.exceptions.AuthenticationException;
@@ -25,12 +26,14 @@ public class LoginController {
     @FXML private PasswordField passwordField;
     @FXML private Button loginBtn;
     @FXML private Label errorLabel;
-    
+    @FXML private Label lblCopyright;
+
     private AuthenticationService authService;
-    
+
     @FXML
     public void initialize() {
         authService = new AuthenticationService();
+        lblCopyright.setText(AppInfo.COPYRIGHT + "  ·  Versión " + AppInfo.version());
         
         // Permitir login con Enter
         passwordField.setOnKeyPressed(event -> {

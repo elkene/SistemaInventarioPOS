@@ -1,21 +1,34 @@
-MIT License
+Sistema de Inventario y Punto de Venta
+Copyright (c) 2026 Kenneth Armenta Ibarra. Todos los derechos reservados.
 
-Copyright (c) 2026 Sistema de Inventario y Punto de Ventas
+Este software, su código fuente, documentación, diseño de interfaz y demás
+archivos que lo acompañan (en adelante, "el Software") son propiedad exclusiva
+de Kenneth Armenta Ibarra y están protegidos por la Ley Federal del Derecho de
+Autor de México y por los tratados internacionales aplicables.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Queda prohibido, sin autorización previa y por escrito del titular:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+  1. Copiar, reproducir, distribuir, publicar, vender, sublicenciar, rentar o
+     prestar el Software, total o parcialmente.
+  2. Modificar, adaptar, traducir o crear obras derivadas del Software.
+  3. Realizar ingeniería inversa, descompilar o desensamblar el Software,
+     salvo en la medida en que la ley aplicable lo permita expresamente.
+  4. Retirar o alterar los avisos de derechos de autor, marcas o leyendas de
+     propiedad contenidos en el Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+El uso del Software solo se permite a las personas o negocios a quienes el
+titular lo haya autorizado expresamente, y únicamente en los términos de esa
+autorización.
+
+EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O
+IMPLÍCITA, INCLUIDAS, ENTRE OTRAS, LAS GARANTÍAS DE COMERCIABILIDAD, IDONEIDAD
+PARA UN FIN DETERMINADO Y NO INFRACCIÓN. EN NINGÚN CASO EL TITULAR SERÁ
+RESPONSABLE DE RECLAMACIONES, DAÑOS U OTRAS RESPONSABILIDADES DERIVADAS DEL USO
+DEL SOFTWARE O RELACIONADAS CON ÉL.
+
+Componentes de terceros: el Software utiliza bibliotecas de código abierto
+(OpenJFX, H2 Database, HikariCP, SLF4J, Spring Security Crypto, Apache Commons
+Logging, OpenPDF y JUnit), que se rigen por sus propias licencias. Esta
+licencia no las modifica.
+
+Contacto para permisos: armentakenneth00@gmail.com

@@ -12,7 +12,10 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.collections.ListChangeListener;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +44,19 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         logger.info("Iniciando aplicación Sistema de Inventario POS");
+
+        // Ícono para la ventana principal y para toda ventana o diálogo que se abra después
+        Image icono = new Image(getClass().getResourceAsStream("/icons/app.png"));
+        primaryStage.getIcons().add(icono);
+        Window.getWindows().addListener((ListChangeListener<Window>) cambio -> {
+            while (cambio.next()) {
+                for (Window ventana : cambio.getAddedSubList()) {
+                    if (ventana instanceof Stage && ((Stage) ventana).getIcons().isEmpty()) {
+                        ((Stage) ventana).getIcons().add(icono);
+                    }
+                }
+            }
+        });
 
         try {
             ConnectionFactory.inicializar();

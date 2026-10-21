@@ -6,6 +6,8 @@ import com.inventario.dao.IProductoDAO;
 import com.inventario.models.MovimientoInventario;
 import com.inventario.models.Producto;
 import com.inventario.config.SessionManager;
+import com.inventario.database.ConnectionFactory;
+import com.inventario.models.Usuario;
 import com.inventario.exceptions.ApplicationException;
 import com.inventario.exceptions.DataAccessException;
 import com.inventario.exceptions.ValidationException;
@@ -28,98 +30,111 @@ public class MovimientoInventarioService {
         this.productoDAO = DAOFactory.getProductoDAO();
     }
     
-    public void registrarEntrada(Long productoId, Integer cantidad, String descripcion) throws ApplicationException {
+    /**
+     * Entrada de mercancía (por ejemplo, una compra). proveedorId es opcional.
+     */
+    public void registrarEntrada(Long productoId, Integer cantidad, String descripcion, Long proveedorId) throws ApplicationException {
+        validarMovimiento(productoId, cantidad);
+        Long usuarioId = usuarioAdmin();
         try {
-            validarMovimiento(productoId, cantidad);
-            
-            Producto producto = productoDAO.read(productoId);
-            if (producto == null) {
-                throw new ValidationException("Producto no encontrado");
-            }
-            
-            MovimientoInventario movimiento = new MovimientoInventario();
-            movimiento.setProductoId(productoId);
-            movimiento.setTipo(MovimientoInventario.TipoMovimiento.ENTRADA);
-            movimiento.setCantidad(cantidad);
-            movimiento.setDescripcion(descripcion != null ? descripcion : "Entrada de inventario");
-            
-            Long usuarioId = SessionManager.getInstance().getCurrentUser() != null ? 
-                           SessionManager.getInstance().getCurrentUser().getId() : null;
-            movimiento.setUsuarioId(usuarioId);
-            
-            movimientoDAO.create(movimiento);
-            
-            productoDAO.updateStock(productoId, cantidad);
+            ConnectionFactory.enTransaccion(() -> {
+                obtenerProductoExistente(productoId);
+                productoDAO.updateStock(productoId, cantidad);
+                crearMovimiento(productoId, MovimientoInventario.TipoMovimiento.ENTRADA, cantidad,
+                        textoODefecto(descripcion, "Entrada de inventario"), usuarioId, proveedorId);
+                return null;
+            });
             logger.info("Entrada de inventario registrada: " + cantidad + " unidades para producto " + productoId);
-            
         } catch (DataAccessException e) {
             logger.error("Error registrando entrada de inventario", e);
             throw new ApplicationException("Error registrando entrada de inventario", e);
         }
     }
     
+    /**
+     * Salida de mercancía que no es venta (merma, caducidad, uso interno...).
+     */
     public void registrarSalida(Long productoId, Integer cantidad, String descripcion) throws ApplicationException {
+        validarMovimiento(productoId, cantidad);
+        Long usuarioId = usuarioAdmin();
         try {
-            validarMovimiento(productoId, cantidad);
-            
-            Producto producto = productoDAO.read(productoId);
-            if (producto == null) {
-                throw new ValidationException("Producto no encontrado");
-            }
-            
-            if (producto.getStock() < cantidad) {
-                throw new ValidationException("Stock insuficiente. Stock actual: " + producto.getStock());
-            }
-            
-            MovimientoInventario movimiento = new MovimientoInventario();
-            movimiento.setProductoId(productoId);
-            movimiento.setTipo(MovimientoInventario.TipoMovimiento.SALIDA);
-            movimiento.setCantidad(cantidad);
-            movimiento.setDescripcion(descripcion != null ? descripcion : "Salida de inventario");
-            
-            Long usuarioId = SessionManager.getInstance().getCurrentUser() != null ? 
-                           SessionManager.getInstance().getCurrentUser().getId() : null;
-            movimiento.setUsuarioId(usuarioId);
-            
-            movimientoDAO.create(movimiento);
-            
-            productoDAO.updateStock(productoId, -cantidad);
+            ConnectionFactory.enTransaccion(() -> {
+                Producto producto = obtenerProductoExistente(productoId);
+                if (!productoDAO.updateStock(productoId, -cantidad)) {
+                    throw new ValidationException("Stock insuficiente. Stock actual: " + producto.getStock());
+                }
+                crearMovimiento(productoId, MovimientoInventario.TipoMovimiento.SALIDA, cantidad,
+                        textoODefecto(descripcion, "Salida de inventario"), usuarioId, null);
+                return null;
+            });
             logger.info("Salida de inventario registrada: " + cantidad + " unidades para producto " + productoId);
-            
         } catch (DataAccessException e) {
             logger.error("Error registrando salida de inventario", e);
             throw new ApplicationException("Error registrando salida de inventario", e);
         }
     }
     
-    public void registrarAjuste(Long productoId, Integer cantidad, String descripcion) throws ApplicationException {
+    /**
+     * Ajuste por conteo físico: deja el stock en stockContado y registra la diferencia.
+     */
+    public void registrarAjuste(Long productoId, Integer stockContado, String descripcion) throws ApplicationException {
+        if (productoId == null) {
+            throw new ValidationException("El producto es requerido");
+        }
+        if (stockContado == null || stockContado < 0) {
+            throw new ValidationException("El stock contado no puede ser negativo");
+        }
+        Long usuarioId = usuarioAdmin();
         try {
-            validarMovimiento(productoId, cantidad);
-            
-            Producto producto = productoDAO.read(productoId);
-            if (producto == null) {
-                throw new ValidationException("Producto no encontrado");
-            }
-            
-            MovimientoInventario movimiento = new MovimientoInventario();
-            movimiento.setProductoId(productoId);
-            movimiento.setTipo(MovimientoInventario.TipoMovimiento.AJUSTE);
-            movimiento.setCantidad(cantidad);
-            movimiento.setDescripcion(descripcion != null ? descripcion : "Ajuste de inventario");
-            
-            Long usuarioId = SessionManager.getInstance().getCurrentUser() != null ? 
-                           SessionManager.getInstance().getCurrentUser().getId() : null;
-            movimiento.setUsuarioId(usuarioId);
-            
-            movimientoDAO.create(movimiento);
-            
-            productoDAO.updateStock(productoId, cantidad);
-            logger.info("Ajuste de inventario registrado: " + cantidad + " unidades para producto " + productoId);
-            
+            ConnectionFactory.enTransaccion(() -> {
+                Producto producto = obtenerProductoExistente(productoId);
+                int diferencia = stockContado - producto.getStock();
+                if (diferencia == 0) {
+                    throw new ValidationException("El stock contado es igual al stock actual; no hay nada que ajustar");
+                }
+                productoDAO.updateStock(productoId, diferencia);
+                String detalle = "Conteo físico: " + producto.getStock() + " → " + stockContado;
+                crearMovimiento(productoId, MovimientoInventario.TipoMovimiento.AJUSTE, diferencia,
+                        descripcion == null || descripcion.isBlank() ? detalle : detalle + ". " + descripcion,
+                        usuarioId, null);
+                return null;
+            });
+            logger.info("Ajuste de inventario registrado: stock " + stockContado + " para producto " + productoId);
         } catch (DataAccessException e) {
             logger.error("Error registrando ajuste de inventario", e);
             throw new ApplicationException("Error registrando ajuste de inventario", e);
         }
+    }
+    
+    private Producto obtenerProductoExistente(Long productoId) throws ApplicationException {
+        Producto producto = productoDAO.read(productoId);
+        if (producto == null) {
+            throw new ValidationException("Producto no encontrado");
+        }
+        return producto;
+    }
+    
+    private void crearMovimiento(Long productoId, MovimientoInventario.TipoMovimiento tipo, int cantidad,
+                                 String descripcion, Long usuarioId, Long proveedorId) throws DataAccessException {
+        MovimientoInventario movimiento = new MovimientoInventario(productoId, tipo, cantidad, descripcion);
+        movimiento.setUsuarioId(usuarioId);
+        movimiento.setProveedorId(proveedorId);
+        movimientoDAO.create(movimiento);
+    }
+    
+    private Long usuarioAdmin() throws ValidationException {
+        Usuario usuario = SessionManager.getInstance().getCurrentUser();
+        if (usuario == null) {
+            throw new ValidationException("La sesión expiró. Cierre sesión e ingrese de nuevo.");
+        }
+        if (!"ADMIN".equals(usuario.getRol())) {
+            throw new ValidationException("Solo un administrador puede modificar el inventario");
+        }
+        return usuario.getId();
+    }
+    
+    private static String textoODefecto(String texto, String defecto) {
+        return texto == null || texto.isBlank() ? defecto : texto;
     }
     
     public List<MovimientoInventario> obtenerMovimientosProducto(Long productoId) throws ApplicationException {

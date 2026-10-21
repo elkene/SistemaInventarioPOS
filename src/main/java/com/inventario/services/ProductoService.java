@@ -1,8 +1,13 @@
 package com.inventario.services;
 
 import com.inventario.dao.factory.DAOFactory;
+import com.inventario.dao.IMovimientoInventarioDAO;
 import com.inventario.dao.IProductoDAO;
+import com.inventario.config.SessionManager;
+import com.inventario.database.ConnectionFactory;
+import com.inventario.models.MovimientoInventario;
 import com.inventario.models.Producto;
+import com.inventario.models.Usuario;
 import com.inventario.exceptions.ApplicationException;
 import com.inventario.exceptions.DataAccessException;
 import com.inventario.exceptions.ValidationException;
@@ -19,9 +24,11 @@ public class ProductoService {
     
     private static final Logger logger = LoggerFactory.getLogger(ProductoService.class);
     private final IProductoDAO productoDAO;
-    
+    private final IMovimientoInventarioDAO movimientoDAO;
+
     public ProductoService() {
         this.productoDAO = DAOFactory.getProductoDAO();
+        this.movimientoDAO = DAOFactory.getMovimientoInventarioDAO();
     }
     
     /**
@@ -30,22 +37,41 @@ public class ProductoService {
     public void crearProducto(Producto producto) throws ApplicationException {
         try {
             validarProducto(producto);
-            
+
             // Verificar que el código sea único
             Producto existente = productoDAO.findByCodigo(producto.getCodigo());
             if (existente != null) {
-                throw new ValidationException("Ya existe un producto con este código");
+                throw new ValidationException(existente.isActivo()
+                        ? "Ya existe un producto con este código"
+                        : "El código pertenece al producto desactivado '" + existente.getNombre() + "'");
             }
-            
-            productoDAO.create(producto);
+
+            ConnectionFactory.enTransaccion(() -> {
+                productoDAO.create(producto);
+                if (producto.getStock() != null && producto.getStock() > 0) {
+                    MovimientoInventario inicial = new MovimientoInventario(producto.getId(),
+                            MovimientoInventario.TipoMovimiento.ENTRADA, producto.getStock(), "Inventario inicial");
+                    Usuario usuario = SessionManager.getInstance().getCurrentUser();
+                    inicial.setUsuarioId(usuario != null ? usuario.getId() : null);
+                    movimientoDAO.create(inicial);
+                }
+                return null;
+            });
             logger.info("Producto creado: " + producto.getNombre());
-            
+
         } catch (DataAccessException e) {
             logger.error("Error creando producto", e);
             throw new ApplicationException("Error creando producto", e);
         }
     }
     
+    /**
+     * Vuelve a activar un producto desactivado
+     */
+    public void reactivarProducto(Long id) throws ApplicationException {
+        productoDAO.setActivo(id, true);
+    }
+
     /**
      * Actualiza un producto existente
      */
@@ -110,46 +136,34 @@ public class ProductoService {
     }
     
     /**
-     * Actualiza el stock de un producto
-     */
-    public void actualizarStock(Long productoId, Integer cantidad) throws ApplicationException {
-        try {
-            Producto producto = productoDAO.read(productoId);
-            if (producto == null) {
-                throw new ValidationException("Producto no encontrado");
-            }
-            
-            int nuevoStock = producto.getStock() + cantidad;
-            if (nuevoStock < 0) {
-                throw new ValidationException("Stock insuficiente");
-            }
-            
-            productoDAO.updateStock(productoId, cantidad);
-            logger.info("Stock actualizado para producto: " + productoId);
-            
-        } catch (DataAccessException e) {
-            logger.error("Error actualizando stock", e);
-            throw new ApplicationException("Error actualizando stock", e);
-        }
-    }
-    
-    /**
      * Elimina un producto
      */
-    public void eliminarProducto(Long id) throws ApplicationException {
+    /**
+     * Borra el producto si nunca tuvo movimientos; si tiene historial (ventas, entradas…)
+     * solo lo desactiva para no perder ese historial. Devuelve true si se borró.
+     */
+    public boolean eliminarProducto(Long id) throws ApplicationException {
         try {
             Producto producto = productoDAO.read(id);
             if (producto == null) {
                 throw new ValidationException("Producto no encontrado");
             }
-            
+
             if (producto.getStock() > 0) {
-                throw new ValidationException("No se puede eliminar un producto con stock");
+                throw new ValidationException("No se puede eliminar un producto con stock. " +
+                        "Primero deja su stock en 0 con Ajustar Stock.");
             }
-            
+
+            if (!movimientoDAO.findByProducto(id).isEmpty()) {
+                productoDAO.setActivo(id, false);
+                logger.info("Producto desactivado (tiene historial): " + id);
+                return false;
+            }
+
             productoDAO.delete(id);
             logger.info("Producto eliminado: " + id);
-            
+            return true;
+
         } catch (DataAccessException e) {
             logger.error("Error eliminando producto", e);
             throw new ApplicationException("Error eliminando producto", e);
@@ -180,6 +194,10 @@ public class ProductoService {
             throw new ValidationException("El nombre del producto es requerido");
         }
         
+        if (producto.getPrecioCompra() == null || producto.getPrecioCompra().compareTo(BigDecimal.ZERO) < 0) {
+            throw new ValidationException("El precio de compra es requerido y no puede ser negativo");
+        }
+
         if (producto.getPrecioVenta() == null || producto.getPrecioVenta().compareTo(BigDecimal.ZERO) <= 0) {
             throw new ValidationException("El precio de venta debe ser mayor a cero");
         }

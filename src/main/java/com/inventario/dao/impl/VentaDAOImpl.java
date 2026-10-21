@@ -20,18 +20,20 @@ public class VentaDAOImpl extends GenericDAOImpl<Venta> implements IVentaDAO {
     
     @Override
     public void create(Venta venta) throws DataAccessException {
-        String sql = "INSERT INTO ventas (usuario_id, cliente_id, total, metodo_pago, estado, observaciones) " +
-                     "VALUES (?, ?, ?, ?, ?, ?)";
-        
+        String sql = "INSERT INTO ventas (usuario_id, cliente_id, subtotal, descuento, total, metodo_pago, estado, observaciones) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            
+
             pstmt.setObject(1, venta.getUsuarioId());
             pstmt.setObject(2, venta.getClienteId());
-            pstmt.setBigDecimal(3, venta.getTotal());
-            pstmt.setString(4, venta.getMetodoPago());
-            pstmt.setString(5, venta.getEstado());
-            pstmt.setString(6, venta.getObservaciones());
+            pstmt.setBigDecimal(3, venta.getSubtotal());
+            pstmt.setBigDecimal(4, venta.getDescuento());
+            pstmt.setBigDecimal(5, venta.getTotal());
+            pstmt.setString(6, venta.getMetodoPago());
+            pstmt.setString(7, venta.getEstado());
+            pstmt.setString(8, venta.getObservaciones());
             
             int affectedRows = pstmt.executeUpdate();
             
@@ -165,7 +167,7 @@ public class VentaDAOImpl extends GenericDAOImpl<Venta> implements IVentaDAO {
                      "FROM ventas v " +
                      "LEFT JOIN clientes c ON v.cliente_id = c.cliente_id " +
                      "LEFT JOIN usuarios u ON v.usuario_id = u.usuario_id " +
-                     "WHERE DATE(v.fecha_creacion) = ? " +
+                     "WHERE CAST(v.fecha_creacion AS DATE) = ? " +
                      "ORDER BY v.fecha_creacion DESC";
         
         try (Connection conn = getConnection();
@@ -193,7 +195,7 @@ public class VentaDAOImpl extends GenericDAOImpl<Venta> implements IVentaDAO {
                      "FROM ventas v " +
                      "LEFT JOIN clientes c ON v.cliente_id = c.cliente_id " +
                      "LEFT JOIN usuarios u ON v.usuario_id = u.usuario_id " +
-                     "WHERE DATE(v.fecha_creacion) >= ? AND DATE(v.fecha_creacion) <= ? " +
+                     "WHERE CAST(v.fecha_creacion AS DATE) >= ? AND CAST(v.fecha_creacion AS DATE) <= ? " +
                      "ORDER BY v.fecha_creacion DESC";
         
         try (Connection conn = getConnection();
@@ -325,7 +327,7 @@ public class VentaDAOImpl extends GenericDAOImpl<Venta> implements IVentaDAO {
     
     @Override
     public long countByFecha(String fecha) throws DataAccessException {
-        String sql = "SELECT COUNT(*) FROM ventas WHERE DATE(fecha_creacion) = ?";
+        String sql = "SELECT COUNT(*) FROM ventas WHERE CAST(fecha_creacion AS DATE) = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -347,7 +349,8 @@ public class VentaDAOImpl extends GenericDAOImpl<Venta> implements IVentaDAO {
     
     @Override
     public long countHoy() throws DataAccessException {
-        String sql = "SELECT COUNT(*) FROM ventas WHERE DATE(fecha_creacion) = CURRENT_DATE";
+        String sql = "SELECT COUNT(*) FROM ventas WHERE CAST(fecha_creacion AS DATE) = CURRENT_DATE " +
+                     "AND estado = 'COMPLETADA'";
         
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement();
@@ -374,11 +377,15 @@ public class VentaDAOImpl extends GenericDAOImpl<Venta> implements IVentaDAO {
             venta.setClienteId(clienteId);
         }
         
+        venta.setSubtotal(rs.getBigDecimal("subtotal"));
+        venta.setDescuento(rs.getBigDecimal("descuento"));
         venta.setTotal(rs.getBigDecimal("total"));
         venta.setMetodoPago(rs.getString("metodo_pago"));
         venta.setEstado(rs.getString("estado"));
         venta.setObservaciones(rs.getString("observaciones"));
         
+        venta.setUsuarioNombre(rs.getString("usuario_nombre"));
+
         String clienteNombre = rs.getString("cliente_nombre");
         if (clienteNombre != null) {
             venta.setClienteNombre(clienteNombre);

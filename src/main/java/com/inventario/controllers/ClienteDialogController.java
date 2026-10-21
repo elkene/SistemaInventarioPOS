@@ -113,7 +113,7 @@ public class ClienteDialogController {
         String nombre = txtNombre.getText().trim();
         
         if (cedula.isEmpty()) {
-            AlertUtil.showWarning("Validación", "La cédula es requerida");
+            AlertUtil.showWarning("Validación", "El RFC es requerido");
             txtCedula.requestFocus();
             return false;
         }

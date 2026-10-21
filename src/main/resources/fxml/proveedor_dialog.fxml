@@ -16,8 +16,8 @@
             <ColumnConstraints hgrow="ALWAYS"/>
         </columnConstraints>
         
-        <Label text="RIF:" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-font-weight: bold;"/>
-        <TextField fx:id="txtRif" GridPane.columnIndex="1" GridPane.rowIndex="0" promptText="Ej: J-12345678-9"/>
+        <Label text="RFC:" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="txtRif" GridPane.columnIndex="1" GridPane.rowIndex="0" promptText="Ej: XAXX010101000"/>
         
         <Label text="Nombre:" GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-font-weight: bold;"/>
         <TextField fx:id="txtNombre" GridPane.columnIndex="1" GridPane.rowIndex="1" promptText="Nombre o razón social"/>

@@ -76,8 +76,8 @@ public class ClienteService {
         try {
             return clienteDAO.findByCedula(cedula);
         } catch (DataAccessException e) {
-            logger.error("Error buscando cliente por cédula", e);
-            throw new ApplicationException("Error buscando cliente por cédula", e);
+            logger.error("Error buscando cliente por RFC", e);
+            throw new ApplicationException("Error buscando cliente por RFC", e);
         }
     }
     
@@ -107,7 +107,7 @@ public class ClienteService {
         }
         
         if (cliente.getCedula() == null || cliente.getCedula().isEmpty()) {
-            throw new ValidationException("La cédula es requerida");
+            throw new ValidationException("El RFC es requerido");
         }
     }
 }

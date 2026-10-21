@@ -14,7 +14,16 @@ public class DetalleVenta extends Entidad {
     private String productoNombre;
     private Integer cantidad;
     private BigDecimal precioUnitario;
+    private BigDecimal costoUnitario;
     private BigDecimal subtotal;
+    
+    public BigDecimal getCostoUnitario() {
+        return costoUnitario;
+    }
+    
+    public void setCostoUnitario(BigDecimal costoUnitario) {
+        this.costoUnitario = costoUnitario;
+    }
     
     public DetalleVenta() {
         super();

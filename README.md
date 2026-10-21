@@ -1,269 +1,127 @@
-# Sistema de Inventario y Punto de Ventas (POS)
+# Sistema de Inventario y Punto de Venta
 
-## Descripción
-Sistema completo de gestión de inventario y punto de ventas para pequeñas y medianas empresas (PYMEs), desarrollado en Java con JavaFX como interfaz gráfica y PostgreSQL como base de datos.
+Aplicación de escritorio (JavaFX) para controlar inventario, ventas, clientes y proveedores de **una sucursal en una sola computadora**. Los datos se guardan en una base de datos **H2 embebida**: es un archivo local, así que no hay que instalar ni administrar un servidor de base de datos.
 
-## Características Principales
+Para el uso diario (vender, corte de caja, respaldos) consulta [MANUAL_DE_USO.md](MANUAL_DE_USO.md).
 
-### Módulos Implementados
-- **Autenticación Segura**: Login con hashing BCrypt y gestión de sesiones
-- **Gestión de Inventario**: CRUD de productos, categorías, ajuste de stock e historial de movimientos
-- **Sistema de Punto de Ventas**: Registro de ventas con carrito de compras, búsqueda de productos y múltiples métodos de pago
-- **Gestión de Clientes**: Registro, seguimiento y crédito de clientes
-- **Gestión de Proveedores**: Registro y contacto de proveedores
-- **Reportes**: Análisis de ventas, inventario, movimientos y ganancias
-- **Control de Sesiones**: Manejo automático de sesiones con timeout
+## Requisitos
 
-## Tecnologías Utilizadas
+| Para | Necesitas |
+|------|-----------|
+| Usar la aplicación empaquetada | Nada: el paquete trae su propio Java |
+| Ejecutar el `.jar` | Java 17 o superior |
+| Desarrollar o compilar | JDK 17 o superior y Maven 3.8+ |
 
-### Backend
-- **Java 11+**: Lenguaje de programación
-- **Maven 3.9+**: Gestor de dependencias
-- **PostgreSQL 14+**: Base de datos relacional
-- **HikariCP 5.1.0**: Connection pooling
-- **Spring Security Crypto**: Hashing de contraseñas
-- **SLF4J / Log4j2**: Logging
+## Dónde guarda los datos
 
-### Frontend
-- **JavaFX 21.0.2**: Framework de interfaz gráfica
-- **FXML**: XML para definir interfaces
-- **CSS**: Estilos profesionales
+Todo vive en la carpeta del usuario de Windows: `%USERPROFILE%\SistemaInventarioPOS\`
 
-## Estructura del Proyecto
+| Carpeta / archivo | Contenido |
+|-------------------|-----------|
+| `datos\inventario.mv.db` | La base de datos (no la abras ni la copies con el sistema abierto; usa los respaldos) |
+| `respaldos\` | Respaldos automáticos (`auto_*.zip`, se guardan los últimos 30) y los previos a una restauración |
+| `tickets\` | Tickets de venta y cortes de caja en PDF |
+| `logs\aplicacion.log` | Registro de la aplicación, para diagnosticar errores |
+| `negocio.properties` | Nombre, dirección, teléfono, RFC y mensaje que salen en los tickets |
 
-```
-SistemaInventarioPOS/
-├── src/
-│   ├── main/
-│   │   ├── java/com/inventario/
-│   │   │   ├── controllers/      # Controladores JavaFX (12)
-│   │   │   ├── models/           # Clases de modelo (10)
-│   │   │   ├── services/         # Servicios de negocio (7)
-│   │   │   ├── dao/              # Data Access Objects (16)
-│   │   │   ├── database/         # Configuración de BD
-│   │   │   ├── utils/            # Utilidades
-│   │   │   ├── exceptions/       # Excepciones personalizadas
-│   │   │   ├── config/           # Configuración
-│   │   │   └── Main.java         # Punto de entrada
-│   │   └── resources/
-│   │       ├── fxml/             # Archivos FXML (18)
-│   │       ├── css/              # Estilos CSS
-│   │       ├── schema.sql        # Script de BD
-│   │       ├── data_inicial.sql  # Datos de prueba
-│   │       ├── application.properties
-│   │       ├── database.properties
-│   │       └── log4j2.xml
-│   └── test/                     # Tests unitarios
-├── pom.xml                       # Configuración Maven
-├── README.md                     # Este archivo
-├── .gitignore
-└── LICENSE
+La base de datos se crea sola la primera vez que se abre el sistema (`schema.sql` + `data_inicial.sql`). Para usar otra carpeta, por ejemplo en pruebas, arranca con `-Dinventario.home=C:\otra\carpeta`.
+
+**Usuarios iniciales**
+
+| Usuario | Contraseña | Rol |
+|---------|-----------|-----|
+| `admin` | `admin123` | ADMIN: acceso completo |
+| `vendedor` | `vendedor123` | VENDEDOR: punto de venta y clientes |
+
+Cambia las dos contraseñas el primer día con el botón **Cambiar contraseña**.
+
+## Ejecutar en desarrollo
+
+```bat
+mvn javafx:run
 ```
 
-## Requisitos Previos
+`ejecutar.bat` y `ejecutar.ps1` hacen lo mismo, con limpieza y compilación previas.
 
-1. **Java Development Kit (JDK) 11 o superior**
-   - Descargar desde [oracle.com](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html)
-   - Configurar variable de entorno JAVA_HOME
+## Pruebas
 
-2. **Maven 3.9 o superior**
-   - Descargar desde [maven.apache.org](https://maven.apache.org/download.cgi)
-   - Configurar variable de entorno MAVEN_HOME
-
-3. **PostgreSQL 14 o superior**
-   - Descargar desde [postgresql.org](https://www.postgresql.org/download/)
-   - Crear base de datos vacía llamada `inventario_pos`
-
-4. **IDE Recomendado**
-   - IntelliJ IDEA Community Edition
-   - Eclipse IDE
-   - VS Code con extensiones Java
-
-## Instalación y Configuración
-
-### 1. Clonar/Descargar el Proyecto
-```bash
-cd C:\Users\Kenne
-# El proyecto ya está en: SistemaInventarioPOS
-```
-
-### 2. Configurar Base de Datos
-```bash
-# Conectarse a PostgreSQL
-psql -U postgres
-
-# Crear base de datos
-CREATE DATABASE inventario_pos;
-
-# Usar la base de datos
-\c inventario_pos
-
-# Ejecutar script de schema
-\i 'C:/Users/Kenne/Idea/SistemaInventarioPOS/src/main/resources/schema.sql'
-
-# Ejecutar script de datos iniciales
-\i 'C:/Users/Kenne/Idea/SistemaInventarioPOS/src/main/resources/data_inicial.sql'
-```
-
-### 3. Configurar Propiedades
-Editar `src/main/resources/database.properties`:
-```properties
-db.url=jdbc:postgresql://localhost:5432/inventario_pos
-db.username=postgres
-db.password=tu_contraseña
-```
-
-### 4. Compilar el Proyecto
-```bash
-mvn clean compile
-```
-
-### 5. Ejecutar la Aplicación
-```bash
-mvn clean javafx:run
-```
-
-## Credenciales de Prueba
-
-**Usuario**: `admin`
-**Contraseña**: `admin123`
-
-*(Nota: Las contraseñas de prueba deben ser hasheadas con BCrypt)*
-
-## Uso de la Aplicación
-
-### Pantalla de Login
-1. Ingresar nombre de usuario
-2. Ingresar contraseña
-3. Hacer clic en "ENTRAR"
-
-### Menú Principal
-- **Inventario**: Gestionar productos, categorías y ajustes de stock
-- **Punto de Ventas**: Registrar ventas con carrito de compras
-- **Clientes**: Gestionar clientes con información de crédito
-- **Proveedores**: Gestionar proveedores
-- **Reportes**: Ver reportes de ventas, inventario, movimientos y ganancias
-
-### Módulo de Inventario
-- Agregar, editar y eliminar productos
-- Gestionar categorías
-- Ajustar stock (entradas/salidas)
-- Ver historial de movimientos
-- Buscar y filtrar productos
-
-### Módulo de Ventas
-- Agregar productos al carrito
-- Buscar productos por código o nombre
-- Aplicar descuentos
-- Seleccionar cliente
-- Elegir método de pago
-- Completar venta
-
-### Módulo de Clientes
-- Agregar, editar y eliminar clientes
-- Buscar clientes por nombre
-- Registrar información de crédito
-
-### Módulo de Proveedores
-- Agregar, editar y eliminar proveedores
-- Buscar proveedores por nombre
-- Registrar información de contacto
-
-### Módulo de Reportes
-- **Reporte de Ventas**: Filtrar por rango de fechas, ver estadísticas
-- **Reporte de Inventario**: Estado actual, stock bajo, valor total
-- **Reporte de Movimientos**: Entradas, salidas y ajustes
-- **Reporte de Ganancias**: Costos, ganancias y porcentaje
-
-## Arquitectura
-
-### Patrón MVC
-- **Models**: Clases que representan entidades del negocio
-- **Views**: Archivos FXML para la interfaz gráfica
-- **Controllers**: Lógica de presentación y manejo de eventos
-
-### Patrón DAO
-- Abstracción de acceso a datos
-- Separación entre lógica de negocio y persistencia
-- Interfaces genéricas y específicas
-
-### Patrón Service
-- Lógica de negocio centralizada
-- Validaciones de datos
-- Manejo de transacciones
-
-## Seguridad
-
-### Autenticación
-- Hashing de contraseñas con BCrypt (work factor: 10)
-- Mensajes de error genéricos (previene enumeración de usuarios)
-- Rate limiting (máximo 5 intentos fallidos)
-
-### Sesiones
-- Session ID de 128 bits generado con SecureRandom
-- Timeout por inactividad: 30 minutos
-- Timeout absoluto: 8 horas
-- Renovación de sesión post-autenticación
-
-### Base de Datos
-- Prepared Statements para prevenir SQL Injection
-- Transacciones ACID
-- Índices en columnas frecuentes
-- Auditoría de cambios
-
-## Logging
-
-Los logs se guardan en `logs/application.log` con la siguiente configuración:
-- **INFO**: Eventos importantes
-- **WARN**: Advertencias
-- **ERROR**: Errores de aplicación
-- **DEBUG**: Información de debugging (deshabilitado en producción)
-
-## Testing
-
-Para ejecutar tests unitarios:
-```bash
+```bat
 mvn test
 ```
 
-## Roadmap
+Las pruebas crean una base de datos temporal y cubren estos casos:
 
-- [x] Módulo de Inventario completo
-- [x] Módulo de Ventas completo
-- [x] Módulo de Clientes completo
-- [x] Módulo de Proveedores completo
-- [x] Módulo de Reportes completo
-- [ ] Exportación de reportes a PDF
-- [ ] Exportación de datos a Excel
-- [ ] Sistema de códigos de barras
-- [ ] Integración con sistemas de pago
-- [ ] Aplicación móvil
-- [ ] API REST
-- [ ] Sincronización en la nube
-- [ ] Multi-sucursales
+- Una venta descuenta el stock, guarda el subtotal, el descuento y el costo, y registra el movimiento.
+- Una venta sin stock suficiente se rechaza y no deja nada guardado.
+- Un descuento mayor al subtotal se rechaza.
+- Anular una venta devuelve el stock.
+- Un ajuste por conteo físico deja el stock contado.
+- Una salida mayor al stock se rechaza.
+- El respaldo se crea y se restaura de ida y vuelta, y un archivo ajeno se rechaza.
+- El ticket, el corte de caja y la reimpresión de tickets se generan en PDF.
+- Administración de usuarios: alta, contraseña restablecida, desactivación, duplicados, permisos del vendedor, el admin no puede desactivarse a sí mismo y la recuperación de emergencia.
+- El login se bloquea tras 5 intentos fallidos y se libera al pasar el tiempo.
+- El corte de caja se guarda con su diferencia y se rechazan montos negativos.
+- Un producto con historial se desactiva (y se reactiva); uno sin historial se borra.
 
-## Contribuciones
+## Generar la versión para la laptop de la sucursal
 
-Las contribuciones son bienvenidas. Por favor:
-1. Fork el proyecto
-2. Crear una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abrir un Pull Request
+```bat
+empaquetar.bat
+```
+
+1. Compila, corre las pruebas y genera `target\sistema-inventario-pos.jar` con todas las dependencias.
+2. Con `jpackage` (incluido en el JDK) crea `dist\SistemaInventarioPOS\`. Esa carpeta trae su propio Java, el ejecutable `SistemaInventarioPOS.exe` y el lanzador `Iniciar sistema.cmd`.
+3. Copia la carpeta `dist\SistemaInventarioPOS` completa a la laptop y crea un acceso directo en el escritorio a `Iniciar sistema.cmd` (funciona siempre) o al `.exe`.
+
+Para un instalador `.msi` con acceso directo en el menú Inicio, instala [WiX Toolset 3](https://wixtoolset.org/) y ejecuta `empaquetar.bat msi`.
+
+> **Windows 11 y el Control inteligente de aplicaciones:** el `.exe` no está firmado digitalmente y esa función de Windows lo bloquea (verificado en Windows 11 con la función activada). `Iniciar sistema.cmd` evita el problema: arranca el sistema con `runtime\bin\javaw.exe`, que sí está firmado por el proveedor de Java. La otra opción es firmar el `.exe` con un certificado de firma de código.
+
+## Estructura del código
+
+```
+src/main/java/com/inventario/
+├── Main.java / Launcher.java   Arranque (Launcher es el punto de entrada del .jar empaquetado)
+├── config/                     AppPaths (carpetas de datos), SessionManager (usuario actual y rol)
+├── database/                   ConnectionFactory: pool H2, creación del esquema y transacciones
+├── dao/ + dao/impl/            Acceso a datos con JDBC (una clase por tabla)
+├── services/                   Reglas de negocio (ventas, inventario, productos, autenticación…)
+├── controllers/                Pantallas JavaFX (cada una con su .fxml en resources/fxml)
+├── models/                     Entidades
+└── utils/                      Alertas, BCrypt, reportes PDF, TicketPdf, RespaldoUtil
+```
+
+### Reglas importantes del diseño
+
+- **Transacciones.** Cada venta, anulación o movimiento de inventario se ejecuta dentro de `ConnectionFactory.enTransaccion(...)`: o se guarda todo, o nada. Los DAOs no cambian; dentro de una transacción reciben la misma conexión.
+- **El stock solo cambia por movimientos.** Las ventas, anulaciones, entradas, salidas y ajustes pasan por `IProductoDAO.updateStock`, que rechaza dejar el stock negativo. Todos esos cambios quedan en `movimientos_inventario`. Al editar un producto existente no se puede cambiar su stock. La tabla tiene además `CHECK (stock >= 0)`.
+- **Ganancias reales.** Cada detalle de venta guarda el `costo_unitario` del momento de la venta, así que cambiar después el precio de compra no altera los reportes históricos.
+- **Roles.** El VENDEDOR solo ve Punto de Venta y Clientes. Inventario, Proveedores, Reportes, Usuarios y Respaldos son del ADMIN. Los servicios también verifican el rol al anular ventas, al mover inventario y al administrar usuarios (`UsuarioService`). Siempre queda al menos un ADMIN activo.
+- **Recuperación del administrador.** Arrancar con el argumento `--restablecer-admin` deja al usuario `admin` activo, con rol ADMIN y contraseña `admin123` (`UsuarioService.restablecerAdminDeEmergencia`). No pide sesión: quien puede ejecutar el programa en la laptop ya tiene acceso al archivo de datos.
+- **Bloqueo de login.** Tras 5 intentos fallidos seguidos se bloquea el inicio de sesión 5 minutos. El contador es estático para que recargar la pantalla de login no lo reinicie.
+- **Productos desactivados.** `productos.activo = FALSE` oculta el producto de las listas y búsquedas por nombre e impide venderlo. `findByCodigo` y `read` sí lo devuelven, para conservar el historial y poder reactivarlo. Un producto se borra físicamente solo si no tiene movimientos.
+- **Localización.** Las columnas `clientes.cedula` y `proveedores.rif` conservan su nombre, pero guardan el RFC, y la interfaz las muestra como "RFC".
+
+### Base de datos
+
+El esquema está en [`src/main/resources/schema.sql`](src/main/resources/schema.sql). Tablas: `usuarios`, `categorias`, `productos`, `clientes`, `proveedores`, `ventas`, `detalles_venta`, `movimientos_inventario`, `cortes_caja`.
+
+Para revisar los datos a mano, cierra el sistema y abre la consola de H2:
+
+```bat
+java -cp %USERPROFILE%\.m2\repository\com\h2database\h2\2.2.224\h2-2.2.224.jar org.h2.tools.Console
+```
+
+Conéctate con la URL `jdbc:h2:file:%USERPROFILE%\SistemaInventarioPOS\datos\inventario`, el usuario `sa` y la contraseña vacía.
+
+**Cambios al esquema.** `schema.sql` se ejecuta en **cada arranque**, así que cada sentencia debe poder repetirse sin error. Para agregar algo a una base ya instalada:
+
+- Las tablas nuevas van con `CREATE TABLE IF NOT EXISTS`.
+- Las columnas nuevas van al final del archivo con `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`, como `productos.activo`.
+
+Los datos iniciales (`data_inicial.sql`) solo se cargan en una base nueva. Si algún día necesitas transformar datos existentes (renombrar columnas, mover información), conviene adoptar una herramienta de migraciones con versiones, como Flyway.
 
 ## Licencia
 
-Este proyecto está bajo licencia MIT. Ver archivo LICENSE para más detalles.
-
-## Soporte
-
-Para reportar bugs o solicitar features, abrir un issue en el repositorio.
-
-## Autores
-
-Sistema desarrollado como proyecto de gestión para PYMEs.
-
----
-
-**Versión**: 1.0.0  
-**Última actualización**: Abril 2026
+Ver [LICENSE](LICENSE).

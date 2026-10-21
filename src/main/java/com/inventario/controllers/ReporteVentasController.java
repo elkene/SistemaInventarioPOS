@@ -71,7 +71,8 @@ public class ReporteVentasController {
             return new javafx.beans.property.SimpleStringProperty("");
         });
         
-        colCliente.setCellValueFactory(new PropertyValueFactory<>("clienteNombre"));
+        colCliente.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
+            c.getValue().getClienteNombre() != null ? c.getValue().getClienteNombre() : "Público en general"));
         colMetodoPago.setCellValueFactory(new PropertyValueFactory<>("metodoPago"));
         colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
         
@@ -198,6 +199,31 @@ public class ReporteVentasController {
         lblPromedioVenta.setText(String.format("$%,.2f", promedio));
     }
     
+    @FXML
+    private void handleAnular() {
+        Venta venta = tablaVentas.getSelectionModel().getSelectedItem();
+        if (venta == null) {
+            AlertUtil.showWarning("Anular venta", "Seleccione la venta a anular en la tabla");
+            return;
+        }
+        if (!"COMPLETADA".equals(venta.getEstado())) {
+            AlertUtil.showWarning("Anular venta", "La venta #" + venta.getId() + " ya está anulada");
+            return;
+        }
+        if (!AlertUtil.showConfirmation("Anular venta", "¿Anular la venta #" + venta.getId() + " por " +
+                String.format("$%,.2f", venta.getTotal()) + "?\nLos productos regresarán al inventario.")) {
+            return;
+        }
+        try {
+            ventaService.anularVenta(venta.getId());
+            AlertUtil.showInfo("Anular venta", "Venta #" + venta.getId() + " anulada");
+            generarReporte();
+        } catch (ApplicationException e) {
+            logger.error("Error anulando venta", e);
+            AlertUtil.showError("Anular venta", e.getMessage());
+        }
+    }
+
     @FXML
     private void handleExportar() {
         if (ventasActuales == null || ventasActuales.isEmpty()) {

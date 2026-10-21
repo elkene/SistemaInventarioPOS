@@ -10,7 +10,7 @@ import java.util.List;
 public interface IProveedorDAO extends IGenericDAO<Proveedor> {
     
     /**
-     * Obtiene un proveedor por su RIF
+     * Obtiene un proveedor por su RFC
      */
     Proveedor findByRIF(String rif) throws DataAccessException;
     

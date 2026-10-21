@@ -18,6 +18,15 @@ public class Producto extends Entidad {
     private Integer stockMinimo;
     private Long categoriaId;
     private String categoriaNombre;
+    private boolean activo = true;
+
+    public boolean isActivo() {
+        return activo;
+    }
+
+    public void setActivo(boolean activo) {
+        this.activo = activo;
+    }
     
     public Producto() {
         super();

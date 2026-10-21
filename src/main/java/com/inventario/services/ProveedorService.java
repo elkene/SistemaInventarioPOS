@@ -76,8 +76,8 @@ public class ProveedorService {
         try {
             return proveedorDAO.findByRIF(rif);
         } catch (DataAccessException e) {
-            logger.error("Error buscando proveedor por RIF", e);
-            throw new ApplicationException("Error buscando proveedor por RIF", e);
+            logger.error("Error buscando proveedor por RFC", e);
+            throw new ApplicationException("Error buscando proveedor por RFC", e);
         }
     }
     
@@ -107,7 +107,7 @@ public class ProveedorService {
         }
         
         if (proveedor.getRif() == null || proveedor.getRif().isEmpty()) {
-            throw new ValidationException("El RIF es requerido");
+            throw new ValidationException("El RFC es requerido");
         }
     }
 }

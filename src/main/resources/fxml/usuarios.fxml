@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.inventario.controllers.UsuariosController"
+            stylesheets="@../css/styles.css"
+            prefHeight="650.0" prefWidth="1100.0">
+
+    <VBox spacing="15" style="-fx-padding: 15;" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+          AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="USUARIOS" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="+ Nuevo Usuario" onAction="#handleNuevo" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 8 20 8 20;"/>
+        </HBox>
+
+        <TableView fx:id="tablaUsuarios" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+                <TableColumn fx:id="colUsername" text="Usuario" prefWidth="180"/>
+                <TableColumn fx:id="colEmail" text="Email" prefWidth="250"/>
+                <TableColumn fx:id="colRol" text="Rol" prefWidth="120"/>
+                <TableColumn fx:id="colEstado" text="Estado" prefWidth="120"/>
+            </columns>
+        </TableView>
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Usuario seleccionado:" style="-fx-text-fill: #7f8c8d;"/>
+            <Button text="Cambiar rol" onAction="#handleCambiarRol" style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+            <Button text="Activar / Desactivar" onAction="#handleActivar" style="-fx-background-color: #f39c12; -fx-text-fill: white;"/>
+            <Button text="Restablecer contraseña" onAction="#handleRestablecer" style="-fx-background-color: #9b59b6; -fx-text-fill: white;"/>
+        </HBox>
+
+    </VBox>
+
+</AnchorPane>

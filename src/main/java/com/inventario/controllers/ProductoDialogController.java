@@ -73,6 +73,8 @@ public class ProductoDialogController {
             txtPrecioCompra.setText(producto.getPrecioCompra() != null ? producto.getPrecioCompra().toString() : "");
             txtPrecioVenta.setText(producto.getPrecioVenta() != null ? producto.getPrecioVenta().toString() : "");
             txtStock.setText(String.valueOf(producto.getStock()));
+            // En un producto existente el stock se cambia con "Ajustar stock" para que quede registrado
+            txtStock.setDisable(true);
             txtStockMinimo.setText(String.valueOf(producto.getStockMinimo()));
             
             if (producto.getCategoriaId() != null && cmbCategoria.getItems() != null) {
@@ -105,6 +107,20 @@ public class ProductoDialogController {
         }
         
         try {
+            if (producto == null || producto.getId() == null) {
+                Producto desactivado = productoService.buscarPorCodigo(txtCodigo.getText().trim());
+                if (desactivado != null && !desactivado.isActivo()) {
+                    if (AlertUtil.showConfirmation("Producto desactivado", "El código pertenece al producto desactivado '"
+                            + desactivado.getNombre() + "'. ¿Reactivarlo? Después podrás editar sus datos.")) {
+                        productoService.reactivarProducto(desactivado.getId());
+                        AlertUtil.showInfo("Éxito", "Producto reactivado");
+                        guardado = true;
+                        dialogStage.close();
+                    }
+                    return;
+                }
+            }
+
             if (producto == null) {
                 producto = new Producto();
             }

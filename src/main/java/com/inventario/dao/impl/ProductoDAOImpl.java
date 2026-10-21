@@ -85,7 +85,7 @@ public class ProductoDAOImpl extends GenericDAOImpl<Producto> implements IProduc
         List<Producto> productos = new ArrayList<>();
         String sql = "SELECT p.*, c.nombre as categoria_nombre FROM productos p " +
                      "LEFT JOIN categorias c ON p.categoria_id = c.categoria_id " +
-                     "ORDER BY p.producto_id";
+                     "WHERE p.activo = TRUE ORDER BY p.producto_id";
         
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement();
@@ -105,9 +105,10 @@ public class ProductoDAOImpl extends GenericDAOImpl<Producto> implements IProduc
     @Override
     public void update(Producto producto) throws DataAccessException {
         String sql = "UPDATE productos SET codigo = ?, nombre = ?, descripcion = ?, " +
-                     "precio_compra = ?, precio_venta = ?, stock = ?, " +
+                     "precio_compra = ?, precio_venta = ?, " +
                      "stock_minimo = ?, categoria_id = ?, fecha_modificacion = CURRENT_TIMESTAMP " +
                      "WHERE producto_id = ?";
+        // El stock no se edita aquí: solo cambia con updateStock() para que quede en el historial
         
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -117,10 +118,9 @@ public class ProductoDAOImpl extends GenericDAOImpl<Producto> implements IProduc
             pstmt.setString(3, producto.getDescripcion());
             pstmt.setBigDecimal(4, producto.getPrecioCompra());
             pstmt.setBigDecimal(5, producto.getPrecioVenta());
-            pstmt.setInt(6, producto.getStock());
-            pstmt.setInt(7, producto.getStockMinimo());
-            pstmt.setObject(8, producto.getCategoriaId());
-            pstmt.setLong(9, producto.getId());
+            pstmt.setInt(6, producto.getStockMinimo());
+            pstmt.setObject(7, producto.getCategoriaId());
+            pstmt.setLong(8, producto.getId());
             
             int affectedRows = pstmt.executeUpdate();
             
@@ -201,7 +201,7 @@ public class ProductoDAOImpl extends GenericDAOImpl<Producto> implements IProduc
         List<Producto> productos = new ArrayList<>();
         String sql = "SELECT p.*, c.nombre as categoria_nombre FROM productos p " +
                      "LEFT JOIN categorias c ON p.categoria_id = c.categoria_id " +
-                     "WHERE p.categoria_id = ? ORDER BY p.nombre";
+                     "WHERE p.categoria_id = ? AND p.activo = TRUE ORDER BY p.nombre";
         
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -226,7 +226,7 @@ public class ProductoDAOImpl extends GenericDAOImpl<Producto> implements IProduc
         List<Producto> productos = new ArrayList<>();
         String sql = "SELECT p.*, c.nombre as categoria_nombre FROM productos p " +
                      "LEFT JOIN categorias c ON p.categoria_id = c.categoria_id " +
-                     "WHERE p.stock <= p.stock_minimo ORDER BY p.stock";
+                     "WHERE p.stock <= p.stock_minimo AND p.activo = TRUE ORDER BY p.stock";
         
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement();
@@ -248,7 +248,7 @@ public class ProductoDAOImpl extends GenericDAOImpl<Producto> implements IProduc
         List<Producto> productos = new ArrayList<>();
         String sql = "SELECT p.*, c.nombre as categoria_nombre FROM productos p " +
                      "LEFT JOIN categorias c ON p.categoria_id = c.categoria_id " +
-                     "WHERE LOWER(p.nombre) LIKE LOWER(?) ORDER BY p.nombre";
+                     "WHERE LOWER(p.nombre) LIKE LOWER(?) AND p.activo = TRUE ORDER BY p.nombre";
         
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -269,23 +269,43 @@ public class ProductoDAOImpl extends GenericDAOImpl<Producto> implements IProduc
     }
     
     @Override
-    public void updateStock(Long productoId, Integer cantidad) throws DataAccessException {
-        String sql = "UPDATE productos SET stock = stock + ? WHERE producto_id = ?";
-        
+    public boolean updateStock(Long productoId, Integer cantidad) throws DataAccessException {
+        String sql = "UPDATE productos SET stock = stock + ?, fecha_modificacion = CURRENT_TIMESTAMP " +
+                     "WHERE producto_id = ? AND stock + ? >= 0";
+
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
+
             pstmt.setInt(1, cantidad);
             pstmt.setLong(2, productoId);
-            
-            pstmt.executeUpdate();
+            pstmt.setInt(3, cantidad);
+
+            boolean actualizado = pstmt.executeUpdate() > 0;
             logger.info("Stock actualizado para producto: " + productoId);
+            return actualizado;
         } catch (SQLException e) {
             logger.error("Error actualizando stock", e);
             throw new DataAccessException("Error actualizando stock", e);
         }
     }
     
+    @Override
+    public void setActivo(Long productoId, boolean activo) throws DataAccessException {
+        String sql = "UPDATE productos SET activo = ?, fecha_modificacion = CURRENT_TIMESTAMP WHERE producto_id = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setBoolean(1, activo);
+            pstmt.setLong(2, productoId);
+            pstmt.executeUpdate();
+            logger.info("Producto " + productoId + (activo ? " activado" : " desactivado"));
+        } catch (SQLException e) {
+            logger.error("Error cambiando estado del producto", e);
+            throw new DataAccessException("Error cambiando estado del producto", e);
+        }
+    }
+
     private Producto mapResultSetToProducto(ResultSet rs) throws SQLException {
         Producto producto = new Producto();
         producto.setId(rs.getLong("producto_id"));
@@ -296,6 +316,7 @@ public class ProductoDAOImpl extends GenericDAOImpl<Producto> implements IProduc
         producto.setPrecioVenta(rs.getBigDecimal("precio_venta"));
         producto.setStock(rs.getInt("stock"));
         producto.setStockMinimo(rs.getInt("stock_minimo"));
+        producto.setActivo(rs.getBoolean("activo"));
         producto.setCategoriaId(rs.getLong("categoria_id"));
         
         String categoriaNombre = rs.getString("categoria_nombre");

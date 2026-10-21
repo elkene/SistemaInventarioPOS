@@ -100,7 +100,7 @@ public class ProveedorDialogController {
         String nombre = txtNombre.getText().trim();
         
         if (rif.isEmpty()) {
-            AlertUtil.showWarning("Validación", "El RIF es requerido");
+            AlertUtil.showWarning("Validación", "El RFC es requerido");
             txtRif.requestFocus();
             return false;
         }

@@ -20,17 +20,18 @@ public class DetalleVentaDAOImpl extends GenericDAOImpl<DetalleVenta> implements
     
     @Override
     public void create(DetalleVenta detalle) throws DataAccessException {
-        String sql = "INSERT INTO detalles_venta (venta_id, producto_id, cantidad, precio_unitario, subtotal) " +
-                     "VALUES (?, ?, ?, ?, ?)";
-        
+        String sql = "INSERT INTO detalles_venta (venta_id, producto_id, cantidad, precio_unitario, costo_unitario, subtotal) " +
+                     "VALUES (?, ?, ?, ?, ?, ?)";
+
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            
+
             pstmt.setLong(1, detalle.getVentaId());
             pstmt.setLong(2, detalle.getProductoId());
             pstmt.setInt(3, detalle.getCantidad());
             pstmt.setBigDecimal(4, detalle.getPrecioUnitario());
-            pstmt.setBigDecimal(5, detalle.getSubtotal());
+            pstmt.setBigDecimal(5, detalle.getCostoUnitario() != null ? detalle.getCostoUnitario() : java.math.BigDecimal.ZERO);
+            pstmt.setBigDecimal(6, detalle.getSubtotal());
             
             int affectedRows = pstmt.executeUpdate();
             
@@ -201,6 +202,7 @@ public class DetalleVentaDAOImpl extends GenericDAOImpl<DetalleVenta> implements
         detalle.setProductoId(rs.getLong("producto_id"));
         detalle.setCantidad(rs.getInt("cantidad"));
         detalle.setPrecioUnitario(rs.getBigDecimal("precio_unitario"));
+        detalle.setCostoUnitario(rs.getBigDecimal("costo_unitario"));
         detalle.setSubtotal(rs.getBigDecimal("subtotal"));
         
         String productoNombre = rs.getString("producto_nombre");

@@ -8,7 +8,7 @@
 <VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.inventario.controllers.AjusteStockDialogController"
       stylesheets="@../css/styles.css"
-      prefHeight="350.0" prefWidth="400.0" spacing="10" style="-fx-padding: 20;">
+      prefHeight="420.0" prefWidth="420.0" spacing="10" style="-fx-padding: 20;">
     
     <Label text="Ajustar Stock" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
     
@@ -31,8 +31,13 @@
                 <HBox spacing="20">
                     <RadioButton fx:id="rbEntrada" text="Entrada"/>
                     <RadioButton fx:id="rbSalida" text="Salida"/>
-                    <RadioButton fx:id="rbAjuste" text="Ajuste"/>
+                    <RadioButton fx:id="rbAjuste" text="Ajuste (conteo físico)"/>
                 </HBox>
+            </VBox>
+
+            <VBox fx:id="boxProveedor" spacing="5">
+                <Label text="Proveedor (opcional):"/>
+                <ComboBox fx:id="cmbProveedor" prefWidth="300" promptText="Sin proveedor"/>
             </VBox>
             
             <GridPane hgap="10" vgap="5">
@@ -41,7 +46,7 @@
                     <ColumnConstraints hgrow="ALWAYS" prefWidth="250"/>
                 </columnConstraints>
                 
-                <Label text="Cantidad:" GridPane.columnIndex="0" GridPane.rowIndex="0" alignment="CENTER_LEFT"/>
+                <Label fx:id="lblCantidad" text="Cantidad:" GridPane.columnIndex="0" GridPane.rowIndex="0" alignment="CENTER_LEFT"/>
                 <TextField fx:id="txtCantidad" GridPane.columnIndex="1" GridPane.rowIndex="0" promptText="Ingrese la cantidad"/>
                 
                 <Label text="Descripción:" GridPane.columnIndex="0" GridPane.rowIndex="1" alignment="TOP_LEFT"/>

@@ -17,6 +17,7 @@ public class DAOFactory {
     private static IDetalleVentaDAO detalleVentaDAOInstance;
     private static IClienteDAO clienteDAOInstance;
     private static IProveedorDAO proveedorDAOInstance;
+    private static ICorteCajaDAO corteCajaDAOInstance;
     
     private DAOFactory() {
     }
@@ -85,7 +86,16 @@ public class DAOFactory {
         return proveedorDAOInstance;
     }
     
+    public static ICorteCajaDAO getCorteCajaDAO() {
+        if (corteCajaDAOInstance == null) {
+            corteCajaDAOInstance = new CorteCajaDAOImpl();
+            logger.debug("CorteCajaDAO creado");
+        }
+        return corteCajaDAOInstance;
+    }
+
     public static void resetAll() {
+        corteCajaDAOInstance = null;
         usuarioDAOInstance = null;
         productoDAOInstance = null;
         categoriaDAOInstance = null;

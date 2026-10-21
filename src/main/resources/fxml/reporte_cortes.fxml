@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.inventario.controllers.ReporteCortesController"
+      stylesheets="@../css/styles.css"
+      spacing="15" style="-fx-padding: 15;">
+
+    <VBox spacing="5" style="-fx-background-color: #34495e; -fx-padding: 15; -fx-background-radius: 8;">
+        <Label text="CORTES DE CAJA" style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: white;"/>
+        <Label text="Últimos 200 cortes. Diferencia negativa = faltante; positiva = sobrante." style="-fx-font-size: 12; -fx-text-fill: #ecf0f1;"/>
+    </VBox>
+
+    <TableView fx:id="tablaCortes" VBox.vgrow="ALWAYS" styleClass="dialog-table">
+        <columns>
+            <TableColumn fx:id="colId" text="N°" prefWidth="50"/>
+            <TableColumn fx:id="colFecha" text="Fecha y hora" prefWidth="140"/>
+            <TableColumn fx:id="colUsuario" text="Usuario" prefWidth="110"/>
+            <TableColumn fx:id="colVentas" text="Ventas" prefWidth="70"/>
+            <TableColumn fx:id="colTotal" text="Total vendido" prefWidth="110"/>
+            <TableColumn fx:id="colFondo" text="Fondo" prefWidth="90"/>
+            <TableColumn fx:id="colEsperado" text="Efectivo esperado" prefWidth="120"/>
+            <TableColumn fx:id="colContado" text="Efectivo contado" prefWidth="120"/>
+            <TableColumn fx:id="colDiferencia" text="Diferencia" prefWidth="100"/>
+        </columns>
+    </TableView>
+
+</VBox>

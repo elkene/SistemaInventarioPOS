@@ -17,8 +17,11 @@ public class AuthenticationService {
     
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
     private final IUsuarioDAO usuarioDAO;
-    private int intentosFallidos = 0;
     private static final int MAX_INTENTOS = 5;
+    private static final long MINUTOS_BLOQUEO = 5;
+    // Estáticos para que volver a cargar la pantalla de login no reinicie el conteo
+    private static int intentosFallidos = 0;
+    private static long bloqueadoHasta = 0;
     
     public AuthenticationService() {
         this.usuarioDAO = DAOFactory.getUsuarioDAO();
@@ -34,22 +37,23 @@ public class AuthenticationService {
             throw new AuthenticationException("Credenciales inválidas");
         }
         
-        if (intentosFallidos >= MAX_INTENTOS) {
-            logger.error("Máximo número de intentos fallidos alcanzado");
-            throw new AuthenticationException("Demasiados intentos fallidos. Intente más tarde.");
+        long restante = bloqueadoHasta - System.currentTimeMillis();
+        if (restante > 0) {
+            throw new AuthenticationException("Demasiados intentos fallidos. Espere " +
+                    (restante / 60000 + 1) + " minuto(s) e intente de nuevo.");
         }
         
         try {
             Usuario usuario = usuarioDAO.findByUsername(username);
             
             if (usuario == null || !usuario.isActivo()) {
-                intentosFallidos++;
+                registrarFallo();
                 logger.warn("Usuario no encontrado o inactivo: " + username);
                 throw new AuthenticationException("Credenciales inválidas");
             }
             
             if (!PasswordHasher.verifyPassword(password, usuario.getPasswordHash())) {
-                intentosFallidos++;
+                registrarFallo();
                 logger.warn("Contraseña incorrecta para usuario: " + username);
                 throw new AuthenticationException("Credenciales inválidas");
             }
@@ -72,47 +76,15 @@ public class AuthenticationService {
         }
     }
     
-    /**
-     * Registra un nuevo usuario
-     */
-    public void register(String username, String email, String password) throws AuthenticationException {
-        
-        if (username == null || username.isEmpty()) {
-            throw new AuthenticationException("El nombre de usuario es requerido");
-        }
-        
-        if (email == null || email.isEmpty()) {
-            throw new AuthenticationException("El email es requerido");
-        }
-        
-        if (password == null || password.length() < 6) {
-            throw new AuthenticationException("La contraseña debe tener al menos 6 caracteres");
-        }
-        
-        try {
-            // Verificar que el usuario no exista
-            Usuario usuarioExistente = usuarioDAO.findByUsername(username);
-            if (usuarioExistente != null) {
-                throw new AuthenticationException("El nombre de usuario ya existe");
-            }
-            
-            // Crear nuevo usuario
-            Usuario nuevoUsuario = new Usuario();
-            nuevoUsuario.setUsername(username);
-            nuevoUsuario.setEmail(email);
-            nuevoUsuario.setPasswordHash(PasswordHasher.hashPassword(password));
-            nuevoUsuario.setRol("VENDEDOR");
-            nuevoUsuario.setActivo(true);
-            
-            usuarioDAO.create(nuevoUsuario);
-            logger.info("Nuevo usuario registrado: " + username);
-            
-        } catch (DataAccessException e) {
-            logger.error("Error registrando nuevo usuario", e);
-            throw new AuthenticationException("Error registrando usuario", e);
+    private static void registrarFallo() {
+        intentosFallidos++;
+        if (intentosFallidos >= MAX_INTENTOS) {
+            bloqueadoHasta = System.currentTimeMillis() + MINUTOS_BLOQUEO * 60_000;
+            intentosFallidos = 0;
+            logger.warn("Login bloqueado " + MINUTOS_BLOQUEO + " minutos por intentos fallidos");
         }
     }
-    
+
     /**
      * Cambia la contraseña de un usuario
      */
@@ -143,19 +115,5 @@ public class AuthenticationService {
             logger.error("Error cambiando contraseña", e);
             throw new AuthenticationException("Error cambiando contraseña", e);
         }
-    }
-    
-    /**
-     * Obtiene el número de intentos fallidos
-     */
-    public int getIntentosFallidos() {
-        return intentosFallidos;
-    }
-    
-    /**
-     * Reinicia el contador de intentos fallidos
-     */
-    public void resetIntentosFallidos() {
-        intentosFallidos = 0;
     }
 }

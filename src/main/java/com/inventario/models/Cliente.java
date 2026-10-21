@@ -95,6 +95,6 @@ public class Cliente extends Entidad {
     
     @Override
     public String toString() {
-        return nombre + " (Cédula: " + cedula + ")";
+        return cedula == null ? nombre : nombre + " (RFC: " + cedula + ")";
     }
 }

@@ -30,7 +30,13 @@ public interface IProductoDAO extends IGenericDAO<Producto> {
     List<Producto> findByNombre(String nombre) throws DataAccessException;
     
     /**
-     * Actualiza el stock de un producto
+     * Suma (o resta, si es negativa) la cantidad al stock de un producto.
+     * Devuelve false sin modificar nada si el stock quedaría negativo.
      */
-    void updateStock(Long productoId, Integer cantidad) throws DataAccessException;
+    boolean updateStock(Long productoId, Integer cantidad) throws DataAccessException;
+
+    /**
+     * Activa o desactiva un producto (los desactivados no se venden ni aparecen en las listas)
+     */
+    void setActivo(Long productoId, boolean activo) throws DataAccessException;
 }

@@ -15,8 +15,16 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.inventario.config.SessionManager;
+import com.inventario.utils.TicketPdf;
+import javafx.scene.layout.GridPane;
+
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 public class VentasController {
     
@@ -39,6 +47,8 @@ public class VentasController {
     @FXML private Label lblDescuento;
     @FXML private Label lblTotal;
     @FXML private TextField txtDescuento;
+    @FXML private TextField txtPagaCon;
+    @FXML private Label lblCambio;
     
     @FXML private Label lblVentasHoy;
     @FXML private Label lblTotalHoy;
@@ -51,6 +61,7 @@ public class VentasController {
     private BigDecimal subtotal = BigDecimal.ZERO;
     private BigDecimal descuento = BigDecimal.ZERO;
     private BigDecimal total = BigDecimal.ZERO;
+    private Long ultimaVentaId;
     
     public void initialize() {
         productoService = new ProductoService();
@@ -122,7 +133,9 @@ public class VentasController {
                 btnIncrementar.setOnAction(e -> {
                     ItemVenta item = getTableRow().getItem();
                     if (item != null) {
-                        item.incrementarCantidad();
+                        if (!item.incrementarCantidad()) {
+                            avisarSinStock(item.getProductoNombre(), item.getStockDisponible());
+                        }
                         tablaCarrito.refresh();
                         calcularTotales();
                     }
@@ -172,8 +185,12 @@ public class VentasController {
         cmbMetodoPago.getSelectionModel().selectFirst();
         
         try {
-            List<Cliente> clientes = clienteService.obtenerTodos();
-            cmbCliente.setItems(FXCollections.observableArrayList(clientes));
+            // Por defecto la venta no se asigna a ningún cliente registrado
+            Cliente publicoGeneral = new Cliente();
+            publicoGeneral.setNombre("Público en general");
+            ObservableList<Cliente> clientes = FXCollections.observableArrayList(publicoGeneral);
+            clientes.addAll(clienteService.obtenerTodos());
+            cmbCliente.setItems(clientes);
             cmbCliente.getSelectionModel().selectFirst();
         } catch (ApplicationException e) {
             logger.error("Error cargando clientes", e);
@@ -201,7 +218,9 @@ public class VentasController {
         
         try {
             Producto producto = productoService.buscarPorCodigo(codigo);
-            if (producto != null) {
+            if (producto != null && !producto.isActivo()) {
+                AlertUtil.showWarning("Producto desactivado", producto.getNombre() + " está desactivado y no se puede vender");
+            } else if (producto != null) {
                 agregarProductoAlCarrito(producto);
                 txtCodigoProducto.clear();
                 txtCodigoProducto.requestFocus();
@@ -233,7 +252,7 @@ public class VentasController {
         }
         
         Cliente cliente = cmbCliente.getValue();
-        
+
         try {
             String descuentoText = txtDescuento.getText().trim();
             if (!descuentoText.isEmpty()) {
@@ -241,26 +260,55 @@ public class VentasController {
             } else {
                 descuento = BigDecimal.ZERO;
             }
-            
+
+            BigDecimal pagaCon = null;
+            if ("EFECTIVO".equals(metodoPago) && !txtPagaCon.getText().trim().isEmpty()) {
+                pagaCon = new BigDecimal(txtPagaCon.getText().trim());
+                if (pagaCon.compareTo(subtotal.subtract(descuento)) < 0) {
+                    AlertUtil.showWarning("Pago insuficiente", "El monto recibido es menor al total");
+                    return;
+                }
+            }
+
             List<DetalleVenta> detalles = carritoObservable.stream()
                 .map(ItemVenta::toDetalleVenta)
                 .toList();
-            
+
             Long clienteId = cliente != null ? cliente.getId() : null;
-            
+
             Venta venta = ventaService.registrarVenta(detalles, clienteId, metodoPago, descuento, null);
-            
-            AlertUtil.showInfo("Venta completada", "Venta #" + venta.getId() + " registrada exitosamente\nTotal: $" + venta.getTotal());
-            
+            if (clienteId != null) {
+                venta.setClienteNombre(cliente.getNombre());
+            }
+            BigDecimal cambio = pagaCon != null ? pagaCon.subtract(venta.getTotal()) : BigDecimal.ZERO;
+            ultimaVentaId = venta.getId();
+
+            ButtonType imprimir = new ButtonType("Imprimir ticket");
+            Alert confirmacion = new Alert(Alert.AlertType.INFORMATION,
+                    "Total: " + String.format("$%,.2f", venta.getTotal()) +
+                    (cambio.signum() > 0 ? "\nCambio: " + String.format("$%,.2f", cambio) : ""),
+                    imprimir, ButtonType.CLOSE);
+            confirmacion.setTitle("Venta completada");
+            confirmacion.setHeaderText("Venta #" + venta.getId() + " registrada");
+            if (confirmacion.showAndWait().orElse(ButtonType.CLOSE) == imprimir) {
+                Usuario cajero = SessionManager.getInstance().getCurrentUser();
+                TicketPdf.abrir(TicketPdf.ticketVenta(venta, detalles,
+                        cajero != null ? cajero.getUsername() : "", pagaCon, cambio));
+            }
+
             carritoObservable.clear();
+            txtDescuento.clear();
+            txtPagaCon.clear();
             calcularTotales();
             cargarEstadisticas();
-            
-            txtDescuento.clear();
+
             txtCodigoProducto.requestFocus();
-            
+
         } catch (NumberFormatException e) {
-            AlertUtil.showError("Descuento inválido", "El valor del descuento debe ser numérico");
+            AlertUtil.showError("Monto inválido", "El descuento y el pago deben ser numéricos");
+        } catch (IOException e) {
+            logger.error("Error generando ticket", e);
+            AlertUtil.showError("Ticket", "La venta se guardó, pero no se pudo generar el ticket: " + e.getMessage());
         } catch (ApplicationException e) {
             logger.error("Error procesando venta", e);
             AlertUtil.showError("Error", e.getMessage());
@@ -287,13 +335,20 @@ public class VentasController {
     private void agregarProductoAlCarrito(Producto producto) {
         for (ItemVenta item : carritoObservable) {
             if (item.getProductoId().equals(producto.getId())) {
-                item.incrementarCantidad();
+                if (!item.incrementarCantidad()) {
+                    avisarSinStock(producto.getNombre(), item.getStockDisponible());
+                }
                 tablaCarrito.refresh();
                 calcularTotales();
                 return;
             }
         }
-        
+
+        if (producto.getStock() == null || producto.getStock() <= 0) {
+            avisarSinStock(producto.getNombre(), 0);
+            return;
+        }
+
         ItemVenta nuevoItem = new ItemVenta(producto);
         carritoObservable.add(nuevoItem);
         calcularTotales();
@@ -324,6 +379,84 @@ public class VentasController {
         lblSubtotal.setText(String.format("$%.2f", subtotal));
         lblDescuento.setText(String.format("-$%.2f", descuento));
         lblTotal.setText(String.format("$%.2f", total));
+
+        BigDecimal cambio = BigDecimal.ZERO;
+        try {
+            String pagaConText = txtPagaCon.getText().trim();
+            if (!pagaConText.isEmpty()) {
+                cambio = new BigDecimal(pagaConText).subtract(total).max(BigDecimal.ZERO);
+            }
+        } catch (NumberFormatException e) {
+            cambio = BigDecimal.ZERO;
+        }
+        lblCambio.setText(String.format("$%.2f", cambio));
+    }
+
+    private void avisarSinStock(String producto, Integer disponible) {
+        AlertUtil.showWarning("Stock insuficiente",
+                producto + ": solo hay " + (disponible != null ? disponible : 0) + " unidad(es) disponibles");
+    }
+
+    @FXML
+    private void handleReimprimirTicket() {
+        TextInputDialog dialogo = new TextInputDialog(ultimaVentaId != null ? String.valueOf(ultimaVentaId) : "");
+        dialogo.setTitle("Reimprimir ticket");
+        dialogo.setHeaderText("Número de venta (aparece como Ticket # en el ticket)");
+        dialogo.setContentText("Venta #:");
+        String texto = dialogo.showAndWait().orElse("").trim();
+        if (texto.isEmpty()) {
+            return;
+        }
+        try {
+            Venta venta = ventaService.obtenerVenta(Long.parseLong(texto));
+            if (venta == null) {
+                AlertUtil.showWarning("Reimprimir ticket", "No existe la venta #" + texto);
+                return;
+            }
+            TicketPdf.abrir(TicketPdf.reimpresion(venta, ventaService.obtenerDetallesVenta(venta.getId())));
+        } catch (NumberFormatException e) {
+            AlertUtil.showWarning("Reimprimir ticket", "Escriba solo el número de la venta");
+        } catch (ApplicationException | IOException e) {
+            logger.error("Error reimprimiendo ticket", e);
+            AlertUtil.showError("Reimprimir ticket", "No se pudo generar el ticket: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleCorteCaja() {
+        TextField txtFondo = new TextField("0");
+        TextField txtContado = new TextField();
+        txtContado.setPromptText("Efectivo en caja");
+        GridPane campos = new GridPane();
+        campos.setHgap(10);
+        campos.setVgap(10);
+        campos.addRow(0, new Label("Fondo inicial:"), txtFondo);
+        campos.addRow(1, new Label("Efectivo contado:"), txtContado);
+
+        Dialog<ButtonType> dialogo = new Dialog<>();
+        dialogo.setTitle("Corte de caja");
+        dialogo.setHeaderText("Corte de caja del día " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        dialogo.getDialogPane().setContent(campos);
+        dialogo.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        if (dialogo.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) {
+            return;
+        }
+
+        try {
+            BigDecimal fondo = new BigDecimal(txtFondo.getText().trim().isEmpty() ? "0" : txtFondo.getText().trim());
+            BigDecimal contado = new BigDecimal(txtContado.getText().trim());
+            CorteCaja corte = ventaService.registrarCorte(fondo, contado);
+            Map<String, BigDecimal> porMetodo = ventaService.totalesPorMetodoPago(corte.getFecha());
+            AlertUtil.showInfo("Corte de caja", "Corte #" + corte.getId() + " guardado.\nDiferencia: "
+                    + String.format("$%,.2f", corte.getDiferencia())
+                    + (corte.getDiferencia().signum() < 0 ? " (faltante)" : corte.getDiferencia().signum() > 0 ? " (sobrante)" : ""));
+            TicketPdf.abrir(TicketPdf.corteCaja(corte, porMetodo));
+        } catch (NumberFormatException e) {
+            AlertUtil.showError("Corte de caja", "El fondo inicial y el efectivo contado deben ser numéricos");
+        } catch (ApplicationException | IOException e) {
+            logger.error("Error generando corte de caja", e);
+            AlertUtil.showError("Corte de caja", "No se pudo generar el corte: " + e.getMessage());
+        }
     }
     
     private void mostrarDialogoBusquedaProducto() {

@@ -18,6 +18,7 @@ public class MovimientoInventario extends Entidad {
     private TipoMovimiento tipo;
     private Integer cantidad;
     private Long referenciaId;
+    private Long proveedorId;
     private String descripcion;
     private Long usuarioId;
     private String usuarioNombre;
@@ -73,6 +74,14 @@ public class MovimientoInventario extends Entidad {
     
     public void setCantidad(Integer cantidad) {
         this.cantidad = cantidad;
+    }
+    
+    public Long getProveedorId() {
+        return proveedorId;
+    }
+    
+    public void setProveedorId(Long proveedorId) {
+        this.proveedorId = proveedorId;
     }
     
     public Long getReferenciaId() {

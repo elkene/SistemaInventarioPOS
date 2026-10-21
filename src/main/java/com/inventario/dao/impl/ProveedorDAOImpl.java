@@ -168,8 +168,8 @@ public class ProveedorDAOImpl extends GenericDAOImpl<Proveedor> implements IProv
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error buscando proveedor por RIF", e);
-            throw new DataAccessException("Error buscando proveedor por RIF", e);
+            logger.error("Error buscando proveedor por RFC", e);
+            throw new DataAccessException("Error buscando proveedor por RFC", e);
         }
         
         return null;

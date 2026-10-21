@@ -170,8 +170,8 @@ public class ClienteDAOImpl extends GenericDAOImpl<Cliente> implements IClienteD
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error buscando cliente por cédula", e);
-            throw new DataAccessException("Error buscando cliente por cédula", e);
+            logger.error("Error buscando cliente por RFC", e);
+            throw new DataAccessException("Error buscando cliente por RFC", e);
         }
         
         return null;

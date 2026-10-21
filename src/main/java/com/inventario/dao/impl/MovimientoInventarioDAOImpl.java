@@ -21,8 +21,8 @@ public class MovimientoInventarioDAOImpl extends GenericDAOImpl<MovimientoInvent
     
     @Override
     public void create(MovimientoInventario movimiento) throws DataAccessException {
-        String sql = "INSERT INTO movimientos_inventario (producto_id, tipo, cantidad, referencia_id, descripcion, usuario_id) " +
-                     "VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO movimientos_inventario (producto_id, tipo, cantidad, referencia_id, descripcion, usuario_id, proveedor_id) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?)";
         
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -44,7 +44,9 @@ public class MovimientoInventarioDAOImpl extends GenericDAOImpl<MovimientoInvent
             } else {
                 pstmt.setNull(6, Types.BIGINT);
             }
-            
+
+            pstmt.setObject(7, movimiento.getProveedorId(), Types.BIGINT);
+
             int affectedRows = pstmt.executeUpdate();
             
             if (affectedRows > 0) {

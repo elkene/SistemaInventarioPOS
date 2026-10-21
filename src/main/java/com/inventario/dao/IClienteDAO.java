@@ -10,7 +10,7 @@ import java.util.List;
 public interface IClienteDAO extends IGenericDAO<Cliente> {
     
     /**
-     * Obtiene un cliente por su cédula
+     * Obtiene un cliente por su RFC
      */
     Cliente findByCedula(String cedula) throws DataAccessException;
     

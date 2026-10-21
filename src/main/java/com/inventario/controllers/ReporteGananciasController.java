@@ -1,10 +1,8 @@
 package com.inventario.controllers;
 
 import com.inventario.models.DetalleVenta;
-import com.inventario.models.Producto;
 import com.inventario.models.Venta;
 import com.inventario.services.VentaService;
-import com.inventario.services.ProductoService;
 import com.inventario.exceptions.ApplicationException;
 import com.inventario.utils.AlertUtil;
 import com.inventario.utils.PdfReportExporter;
@@ -44,7 +42,6 @@ public class ReporteGananciasController {
     @FXML private TableColumn<VentaReporte, BigDecimal> colGanancia;
     
     private VentaService ventaService;
-    private ProductoService productoService;
     private ObservableList<VentaReporte> ventasObservable;
     private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     
@@ -84,7 +81,6 @@ public class ReporteGananciasController {
     @FXML
     public void initialize() {
         this.ventaService = new VentaService();
-        this.productoService = new ProductoService();
         this.ventasObservable = FXCollections.observableArrayList();
         configurarTabla();
         dateDesde.setValue(LocalDate.now().minusDays(30));
@@ -209,16 +205,11 @@ public class ReporteGananciasController {
                 BigDecimal costoVenta = BigDecimal.ZERO;
                 try {
                     List<DetalleVenta> detalles = ventaService.obtenerDetallesVenta(venta.getId());
+                    // Se usa el costo guardado al momento de la venta, no el precio de compra actual
                     for (DetalleVenta detalle : detalles) {
-                        try {
-                            Producto producto = productoService.obtenerProducto(detalle.getProductoId());
-                            if (producto != null && producto.getPrecioCompra() != null) {
-                                BigDecimal costoProducto = producto.getPrecioCompra()
-                                    .multiply(BigDecimal.valueOf(detalle.getCantidad()));
-                                costoVenta = costoVenta.add(costoProducto);
-                            }
-                        } catch (Exception e) {
-                            logger.warn("Error obteniendo producto {}: {}", detalle.getProductoId(), e.getMessage());
+                        if (detalle.getCostoUnitario() != null) {
+                            costoVenta = costoVenta.add(detalle.getCostoUnitario()
+                                .multiply(BigDecimal.valueOf(detalle.getCantidad())));
                         }
                     }
                 } catch (Exception e) {

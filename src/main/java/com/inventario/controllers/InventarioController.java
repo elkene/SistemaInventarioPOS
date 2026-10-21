@@ -257,13 +257,16 @@ public class InventarioController {
         }
         
         if (!AlertUtil.showConfirmation("Confirmar", 
-                "¿Está seguro de eliminar el producto '" + producto.getNombre() + "'?")) {
+                "¿Está seguro de eliminar el producto '" + producto.getNombre() + "'?\n" +
+                "Si tiene ventas o movimientos registrados se desactivará en lugar de borrarse.")) {
             return;
         }
-        
+
         try {
-            productoService.eliminarProducto(producto.getId());
-            AlertUtil.showInfo("Éxito", "Producto eliminado correctamente");
+            boolean borrado = productoService.eliminarProducto(producto.getId());
+            AlertUtil.showInfo("Éxito", borrado ? "Producto eliminado correctamente"
+                    : "El producto tiene historial, así que se desactivó: ya no aparece en las listas ni se puede vender.\n" +
+                      "Para recuperarlo, da de alta un producto nuevo con el mismo código.");
             cargarDatos();
         } catch (ValidationException e) {
             AlertUtil.showWarning("Advertencia", e.getMessage());

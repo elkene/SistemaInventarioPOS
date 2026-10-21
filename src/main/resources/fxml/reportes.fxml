@@ -35,7 +35,12 @@
                     prefWidth="190" prefHeight="45"
                     style="-fx-background-color: #2c3e50; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 13; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 15;"
                     onAction="#handleReporteGanancias"/>
-            
+
+            <Button text="📋 Cortes de caja"
+                    prefWidth="190" prefHeight="45"
+                    style="-fx-background-color: #2c3e50; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 13; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 15;"
+                    onAction="#handleReporteCortes"/>
+
         </VBox>
         
         <VBox fx:id="contenedorReportes" spacing="15" style="-fx-background-color: #ecf0f1; -fx-padding: 20;" HBox.hgrow="ALWAYS">

@@ -13,6 +13,9 @@ public class Venta extends Entidad {
     private Long usuarioId;
     private Long clienteId;
     private String clienteNombre;
+    private String usuarioNombre;
+    private BigDecimal subtotal;
+    private BigDecimal descuento;
     private BigDecimal total;
     private String metodoPago;
     private String observaciones;
@@ -33,6 +36,30 @@ public class Venta extends Entidad {
     }
     
     // Getters and Setters
+    public String getUsuarioNombre() {
+        return usuarioNombre;
+    }
+
+    public void setUsuarioNombre(String usuarioNombre) {
+        this.usuarioNombre = usuarioNombre;
+    }
+
+    public BigDecimal getSubtotal() {
+        return subtotal;
+    }
+
+    public void setSubtotal(BigDecimal subtotal) {
+        this.subtotal = subtotal;
+    }
+
+    public BigDecimal getDescuento() {
+        return descuento;
+    }
+
+    public void setDescuento(BigDecimal descuento) {
+        this.descuento = descuento;
+    }
+
     public Long getUsuarioId() {
         return usuarioId;
     }

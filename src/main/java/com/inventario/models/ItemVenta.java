@@ -10,6 +10,7 @@ public class ItemVenta {
     private Integer cantidad;
     private BigDecimal precioUnitario;
     private BigDecimal subtotal;
+    private Integer stockDisponible;
     
     public ItemVenta() {
         this.cantidad = 1;
@@ -21,6 +22,7 @@ public class ItemVenta {
         this.productoNombre = producto.getNombre();
         this.cantidad = 1;
         this.precioUnitario = producto.getPrecioVenta();
+        this.stockDisponible = producto.getStock();
         this.subtotal = this.precioUnitario.multiply(BigDecimal.valueOf(this.cantidad));
     }
     
@@ -80,9 +82,20 @@ public class ItemVenta {
         }
     }
     
-    public void incrementarCantidad() {
+    public Integer getStockDisponible() {
+        return stockDisponible;
+    }
+
+    /**
+     * Suma una unidad si hay stock. Devuelve false si ya no hay más unidades disponibles.
+     */
+    public boolean incrementarCantidad() {
+        if (stockDisponible != null && cantidad >= stockDisponible) {
+            return false;
+        }
         this.cantidad++;
         actualizarSubtotal();
+        return true;
     }
     
     public void decrementarCantidad() {

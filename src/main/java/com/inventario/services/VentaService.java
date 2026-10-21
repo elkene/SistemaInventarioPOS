@@ -4,6 +4,11 @@ import com.inventario.dao.factory.DAOFactory;
 import com.inventario.dao.IVentaDAO;
 import com.inventario.dao.IDetalleVentaDAO;
 import com.inventario.dao.IProductoDAO;
+import com.inventario.dao.IMovimientoInventarioDAO;
+import com.inventario.dao.ICorteCajaDAO;
+import com.inventario.models.CorteCaja;
+import com.inventario.database.ConnectionFactory;
+import com.inventario.models.MovimientoInventario;
 import com.inventario.models.Venta;
 import com.inventario.models.DetalleVenta;
 import com.inventario.models.Producto;
@@ -19,6 +24,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class VentaService {
     
@@ -26,11 +33,22 @@ public class VentaService {
     private final IVentaDAO ventaDAO;
     private final IDetalleVentaDAO detalleVentaDAO;
     private final IProductoDAO productoDAO;
-    
+    private final IMovimientoInventarioDAO movimientoDAO;
+    private final ICorteCajaDAO corteCajaDAO = DAOFactory.getCorteCajaDAO();
+
     public VentaService() {
         this.ventaDAO = DAOFactory.getVentaDAO();
         this.detalleVentaDAO = DAOFactory.getDetalleVentaDAO();
         this.productoDAO = DAOFactory.getProductoDAO();
+        this.movimientoDAO = DAOFactory.getMovimientoInventarioDAO();
+    }
+
+    private void registrarMovimiento(Long productoId, MovimientoInventario.TipoMovimiento tipo, int cantidad,
+                                     Long ventaId, String descripcion, Long usuarioId) throws DataAccessException {
+        MovimientoInventario movimiento = new MovimientoInventario(productoId, tipo, cantidad, descripcion);
+        movimiento.setReferenciaId(ventaId);
+        movimiento.setUsuarioId(usuarioId);
+        movimientoDAO.create(movimiento);
     }
     
     public Venta registrarVenta(List<DetalleVenta> detalles, Long clienteId, 
@@ -47,40 +65,61 @@ public class VentaService {
             
             BigDecimal subtotal = BigDecimal.ZERO;
             for (DetalleVenta detalle : detalles) {
+                if (detalle.getCantidad() == null || detalle.getCantidad() <= 0) {
+                    throw new ValidationException("La cantidad de cada producto debe ser mayor a cero");
+                }
                 detalle.setSubtotal(detalle.getPrecioUnitario().multiply(BigDecimal.valueOf(detalle.getCantidad())));
                 subtotal = subtotal.add(detalle.getSubtotal());
             }
-            
-            BigDecimal montoDescuento = BigDecimal.ZERO;
-            if (descuento != null && descuento.compareTo(BigDecimal.ZERO) > 0) {
-                montoDescuento = descuento;
+
+            BigDecimal montoDescuento = descuento != null ? descuento : BigDecimal.ZERO;
+            if (montoDescuento.compareTo(BigDecimal.ZERO) < 0) {
+                throw new ValidationException("El descuento no puede ser negativo");
             }
-            
+            if (montoDescuento.compareTo(subtotal) > 0) {
+                throw new ValidationException("El descuento no puede ser mayor al subtotal");
+            }
             BigDecimal total = subtotal.subtract(montoDescuento);
-            if (total.compareTo(BigDecimal.ZERO) < 0) {
-                total = BigDecimal.ZERO;
-            }
-            
+
             Usuario usuarioActual = SessionManager.getInstance().getCurrentUser();
-            Long usuarioId = usuarioActual != null ? usuarioActual.getId() : null;
-            
+            if (usuarioActual == null) {
+                throw new ValidationException("La sesión expiró. Cierre sesión e ingrese de nuevo para vender.");
+            }
+
             Venta venta = new Venta();
-            venta.setUsuarioId(usuarioId);
+            venta.setUsuarioId(usuarioActual.getId());
             venta.setClienteId(clienteId);
+            venta.setSubtotal(subtotal);
+            venta.setDescuento(montoDescuento);
             venta.setTotal(total);
             venta.setMetodoPago(metodoPago);
             venta.setEstado("COMPLETADA");
             venta.setObservaciones(observaciones);
-            
-            ventaDAO.create(venta);
-            
-            for (DetalleVenta detalle : detalles) {
-                detalle.setVentaId(venta.getId());
-                detalleVentaDAO.create(detalle);
-                
-                productoDAO.updateStock(detalle.getProductoId(), -detalle.getCantidad());
-            }
-            
+
+            // Venta, detalles, stock y movimientos se guardan juntos o no se guarda nada
+            ConnectionFactory.enTransaccion(() -> {
+                ventaDAO.create(venta);
+
+                for (DetalleVenta detalle : detalles) {
+                    Producto producto = productoDAO.read(detalle.getProductoId());
+                    if (producto == null || !producto.isActivo()) {
+                        throw new ValidationException("Producto no disponible para venta: " + detalle.getProductoNombre());
+                    }
+                    if (!productoDAO.updateStock(producto.getId(), -detalle.getCantidad())) {
+                        throw new ValidationException("Stock insuficiente de " + producto.getNombre() +
+                                ". Disponible: " + producto.getStock());
+                    }
+
+                    detalle.setVentaId(venta.getId());
+                    detalle.setCostoUnitario(producto.getPrecioCompra());
+                    detalleVentaDAO.create(detalle);
+
+                    registrarMovimiento(producto.getId(), MovimientoInventario.TipoMovimiento.SALIDA,
+                            detalle.getCantidad(), venta.getId(), "Venta #" + venta.getId(), usuarioActual.getId());
+                }
+                return null;
+            });
+
             logger.info("Venta registrada: " + venta.getId() + " - Total: " + total);
             return venta;
             
@@ -178,6 +217,54 @@ public class VentaService {
         }
     }
     
+    /**
+     * Total de ventas completadas del día agrupado por método de pago (para el corte de caja).
+     */
+    public Map<String, BigDecimal> totalesPorMetodoPago(LocalDate fecha) throws ApplicationException {
+        Map<String, BigDecimal> totales = new TreeMap<>();
+        for (Venta venta : obtenerPorFecha(fecha)) {
+            if ("COMPLETADA".equals(venta.getEstado())) {
+                totales.merge(venta.getMetodoPago(), venta.getTotal(), BigDecimal::add);
+            }
+        }
+        return totales;
+    }
+
+    /**
+     * Calcula y guarda el corte de caja del día con el efectivo que el cajero contó.
+     */
+    public CorteCaja registrarCorte(BigDecimal fondoInicial, BigDecimal efectivoContado) throws ApplicationException {
+        if (fondoInicial == null || fondoInicial.signum() < 0 || efectivoContado == null || efectivoContado.signum() < 0) {
+            throw new ValidationException("El fondo inicial y el efectivo contado no pueden ser negativos");
+        }
+        Usuario usuario = SessionManager.getInstance().getCurrentUser();
+        if (usuario == null) {
+            throw new ValidationException("La sesión expiró. Cierre sesión e ingrese de nuevo.");
+        }
+
+        LocalDate hoy = LocalDate.now();
+        Map<String, BigDecimal> porMetodo = totalesPorMetodoPago(hoy);
+        BigDecimal ventasEfectivo = porMetodo.getOrDefault("EFECTIVO", BigDecimal.ZERO);
+
+        CorteCaja corte = new CorteCaja();
+        corte.setUsuarioId(usuario.getId());
+        corte.setUsuarioNombre(usuario.getUsername());
+        corte.setFecha(hoy);
+        corte.setNumeroVentas((int) contarVentasHoy());
+        corte.setTotalVendido(porMetodo.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add));
+        corte.setVentasEfectivo(ventasEfectivo);
+        corte.setFondoInicial(fondoInicial);
+        corte.setEfectivoContado(efectivoContado);
+        corte.setDiferencia(efectivoContado.subtract(fondoInicial.add(ventasEfectivo)));
+        corteCajaDAO.create(corte);
+        logger.info("Corte de caja registrado: " + corte.getId() + " - Diferencia: " + corte.getDiferencia());
+        return corte;
+    }
+
+    public List<CorteCaja> obtenerCortesRecientes(int limit) throws ApplicationException {
+        return corteCajaDAO.findRecientes(limit);
+    }
+
     public void anularVenta(Long ventaId) throws ApplicationException {
         try {
             Venta venta = ventaDAO.read(ventaId);
@@ -189,14 +276,24 @@ public class VentaService {
                 throw new ValidationException("La venta ya está anulada");
             }
             
-            List<DetalleVenta> detalles = detalleVentaDAO.findByVenta(ventaId);
-            
-            for (DetalleVenta detalle : detalles) {
-                productoDAO.updateStock(detalle.getProductoId(), detalle.getCantidad());
+            Usuario usuarioActual = SessionManager.getInstance().getCurrentUser();
+            if (usuarioActual == null || !"ADMIN".equals(usuarioActual.getRol())) {
+                throw new ValidationException("Solo un administrador puede anular ventas");
             }
-            
-            venta.setEstado("ANULADA");
-            ventaDAO.update(venta);
+
+            List<DetalleVenta> detalles = detalleVentaDAO.findByVenta(ventaId);
+
+            ConnectionFactory.enTransaccion(() -> {
+                for (DetalleVenta detalle : detalles) {
+                    productoDAO.updateStock(detalle.getProductoId(), detalle.getCantidad());
+                    registrarMovimiento(detalle.getProductoId(), MovimientoInventario.TipoMovimiento.ENTRADA,
+                            detalle.getCantidad(), ventaId, "Anulación de venta #" + ventaId, usuarioActual.getId());
+                }
+
+                venta.setEstado("ANULADA");
+                ventaDAO.update(venta);
+                return null;
+            });
             
             logger.info("Venta anulada: " + ventaId);
             

@@ -84,6 +84,6 @@ public class Proveedor extends Entidad {
     
     @Override
     public String toString() {
-        return nombre + " (RIF: " + rif + ")";
+        return nombre + " (RFC: " + rif + ")";
     }
 }

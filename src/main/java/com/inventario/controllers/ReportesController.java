@@ -41,6 +41,12 @@ public class ReportesController {
         cargarReporte("/fxml/reporte_ganancias.fxml");
     }
     
+    @FXML
+    private void handleReporteCortes() {
+        logger.info("Abriendo historial de cortes de caja");
+        cargarReporte("/fxml/reporte_cortes.fxml");
+    }
+
     private void cargarReporte(String fxmlPath) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));

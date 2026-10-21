@@ -91,6 +91,14 @@ public class SessionManager {
     }
     
     /**
+     * Indica si el usuario actual tiene rol ADMIN
+     */
+    public boolean esAdmin() {
+        Usuario usuario = getCurrentUser();
+        return usuario != null && "ADMIN".equals(usuario.getRol());
+    }
+
+    /**
      * Obtiene el ID de sesión
      */
     public String getSessionId() {

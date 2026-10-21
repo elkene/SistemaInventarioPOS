@@ -55,7 +55,7 @@ Al cerrar el turno, en **Punto de Venta**:
 
 ### Reimprimir un ticket
 
-En **Punto de Venta**, pulsa **Reimprimir ticket** y escribe el número de venta (el "Ticket #"). Ya viene escrito el de la última venta. La copia dice "REIMPRESIÓN" y, si la venta fue anulada, "VENTA ANULADA". La copia no trae el "Paga con" ni el cambio, porque esos datos no se guardan.
+En **Punto de Venta**, pulsa **Reimprimir ticket** y escribe el número de venta (el "Ticket #"). Ya viene escrito el de la última venta. La copia dice "REIMPRESIÓN" y, si la venta fue anulada, "VENTA ANULADA". La copia trae el mismo "Paga con" y cambio que el ticket original.
 
 ## 5. Inventario (administrador)
 

@@ -264,10 +264,6 @@ public class VentasController {
             BigDecimal pagaCon = null;
             if ("EFECTIVO".equals(metodoPago) && !txtPagaCon.getText().trim().isEmpty()) {
                 pagaCon = new BigDecimal(txtPagaCon.getText().trim());
-                if (pagaCon.compareTo(subtotal.subtract(descuento)) < 0) {
-                    AlertUtil.showWarning("Pago insuficiente", "El monto recibido es menor al total");
-                    return;
-                }
             }
 
             List<DetalleVenta> detalles = carritoObservable.stream()
@@ -276,24 +272,23 @@ public class VentasController {
 
             Long clienteId = cliente != null ? cliente.getId() : null;
 
-            Venta venta = ventaService.registrarVenta(detalles, clienteId, metodoPago, descuento, null);
+            Venta venta = ventaService.registrarVenta(detalles, clienteId, metodoPago, descuento, pagaCon, null);
             if (clienteId != null) {
                 venta.setClienteNombre(cliente.getNombre());
             }
-            BigDecimal cambio = pagaCon != null ? pagaCon.subtract(venta.getTotal()) : BigDecimal.ZERO;
+            BigDecimal cambio = venta.getCambio();
             ultimaVentaId = venta.getId();
 
             ButtonType imprimir = new ButtonType("Imprimir ticket");
             Alert confirmacion = new Alert(Alert.AlertType.INFORMATION,
                     "Total: " + String.format("$%,.2f", venta.getTotal()) +
-                    (cambio.signum() > 0 ? "\nCambio: " + String.format("$%,.2f", cambio) : ""),
+                    (cambio != null && cambio.signum() > 0 ? "\nCambio: " + String.format("$%,.2f", cambio) : ""),
                     imprimir, ButtonType.CLOSE);
             confirmacion.setTitle("Venta completada");
             confirmacion.setHeaderText("Venta #" + venta.getId() + " registrada");
             if (confirmacion.showAndWait().orElse(ButtonType.CLOSE) == imprimir) {
                 Usuario cajero = SessionManager.getInstance().getCurrentUser();
-                TicketPdf.abrir(TicketPdf.ticketVenta(venta, detalles,
-                        cajero != null ? cajero.getUsername() : "", pagaCon, cambio));
+                TicketPdf.abrir(TicketPdf.ticketVenta(venta, detalles, cajero != null ? cajero.getUsername() : ""));
             }
 
             carritoObservable.clear();

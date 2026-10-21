@@ -17,6 +17,7 @@ public class Venta extends Entidad {
     private BigDecimal subtotal;
     private BigDecimal descuento;
     private BigDecimal total;
+    private BigDecimal montoRecibido;
     private String metodoPago;
     private String observaciones;
     private String estado;
@@ -36,6 +37,19 @@ public class Venta extends Entidad {
     }
     
     // Getters and Setters
+    public BigDecimal getMontoRecibido() {
+        return montoRecibido;
+    }
+
+    public void setMontoRecibido(BigDecimal montoRecibido) {
+        this.montoRecibido = montoRecibido;
+    }
+
+    /** Cambio entregado al cliente, o null si no se capturó el monto recibido */
+    public BigDecimal getCambio() {
+        return montoRecibido != null && total != null ? montoRecibido.subtract(total) : null;
+    }
+
     public String getUsuarioNombre() {
         return usuarioNombre;
     }

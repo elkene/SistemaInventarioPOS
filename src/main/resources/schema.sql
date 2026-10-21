@@ -139,3 +139,6 @@ CREATE INDEX IF NOT EXISTS idx_cortes_fecha ON cortes_caja(fecha);
 
 -- Productos desactivados: no se venden ni aparecen en listas, pero conservan su historial
 ALTER TABLE productos ADD COLUMN IF NOT EXISTS activo BOOLEAN DEFAULT TRUE NOT NULL;
+
+-- Efectivo que entregó el cliente ("Paga con"); NULL si no se capturó. El cambio es monto_recibido - total
+ALTER TABLE ventas ADD COLUMN IF NOT EXISTS monto_recibido DECIMAL(10, 2);

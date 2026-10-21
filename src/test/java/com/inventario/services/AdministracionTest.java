@@ -142,7 +142,7 @@ public class AdministracionTest {
         d.setProductoNombre(p.getNombre());
         d.setCantidad(cantidad);
         d.setPrecioUnitario(p.getPrecioVenta());
-        return ventas.registrarVenta(List.of(d), null, metodo, BigDecimal.ZERO, null);
+        return ventas.registrarVenta(List.of(d), null, metodo, BigDecimal.ZERO, null, null);
     }
 
     @Test

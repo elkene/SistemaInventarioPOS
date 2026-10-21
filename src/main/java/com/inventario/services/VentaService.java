@@ -52,7 +52,8 @@ public class VentaService {
     }
     
     public Venta registrarVenta(List<DetalleVenta> detalles, Long clienteId, 
-                               String metodoPago, BigDecimal descuento, String observaciones) 
+                               String metodoPago, BigDecimal descuento, BigDecimal montoRecibido,
+                               String observaciones)
                                throws ApplicationException {
         try {
             if (detalles == null || detalles.isEmpty()) {
@@ -95,6 +96,10 @@ public class VentaService {
             venta.setMetodoPago(metodoPago);
             venta.setEstado("COMPLETADA");
             venta.setObservaciones(observaciones);
+            if (montoRecibido != null && montoRecibido.compareTo(total) < 0) {
+                throw new ValidationException("El monto recibido es menor al total");
+            }
+            venta.setMontoRecibido(montoRecibido);
 
             // Venta, detalles, stock y movimientos se guardan juntos o no se guarda nada
             ConnectionFactory.enTransaccion(() -> {

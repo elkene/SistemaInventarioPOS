@@ -8,6 +8,9 @@ import com.inventario.models.MovimientoInventario;
 import com.inventario.models.Producto;
 import com.inventario.models.Venta;
 import com.inventario.utils.RespaldoUtil;
+import com.inventario.utils.TicketPdf;
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -70,7 +73,7 @@ public class VentaServiceTest {
     public void ventaDescuentaStockGuardaCostoYRegistraMovimiento() throws Exception {
         Producto p = crearProducto("A-1", 5);
 
-        Venta venta = ventas.registrarVenta(carrito(p, 2), null, "EFECTIVO", new BigDecimal("1.00"), null);
+        Venta venta = ventas.registrarVenta(carrito(p, 2), null, "EFECTIVO", new BigDecimal("1.00"), null, null);
 
         assertEquals(3, stock(p));
         Venta guardada = ventas.obtenerVenta(venta.getId());
@@ -92,7 +95,7 @@ public class VentaServiceTest {
         int ventasAntes = ventas.obtenerTodas().size();
 
         try {
-            ventas.registrarVenta(carrito(p, 10), null, "EFECTIVO", BigDecimal.ZERO, null);
+            ventas.registrarVenta(carrito(p, 10), null, "EFECTIVO", BigDecimal.ZERO, null, null);
             fail("Debió rechazar la venta por falta de stock");
         } catch (ValidationException e) {
             assertTrue(e.getMessage().contains("Stock insuficiente"));
@@ -105,13 +108,13 @@ public class VentaServiceTest {
     @Test(expected = ValidationException.class)
     public void descuentoMayorAlSubtotalSeRechaza() throws Exception {
         Producto p = crearProducto("C-1", 3);
-        ventas.registrarVenta(carrito(p, 1), null, "EFECTIVO", new BigDecimal("50"), null);
+        ventas.registrarVenta(carrito(p, 1), null, "EFECTIVO", new BigDecimal("50"), null, null);
     }
 
     @Test
     public void anularVentaDevuelveStock() throws Exception {
         Producto p = crearProducto("D-1", 4);
-        Venta venta = ventas.registrarVenta(carrito(p, 3), null, "TARJETA_DEBITO", BigDecimal.ZERO, null);
+        Venta venta = ventas.registrarVenta(carrito(p, 3), null, "TARJETA_DEBITO", BigDecimal.ZERO, null, null);
         assertEquals(1, stock(p));
 
         ventas.anularVenta(venta.getId());
@@ -139,6 +142,32 @@ public class VentaServiceTest {
             fail("Debió rechazar la salida");
         } catch (ValidationException e) {
             assertEquals(2, stock(p));
+        }
+    }
+
+    @Test
+    public void montoRecibidoSeGuardaYLaReimpresionMuestraElCambio() throws Exception {
+        Producto p = crearProducto("G-1", 5);
+        Venta venta = ventas.registrarVenta(carrito(p, 3), null, "EFECTIVO", BigDecimal.ZERO, new BigDecimal("50"), null);
+
+        Venta guardada = ventas.obtenerVenta(venta.getId());
+        assertEquals(0, new BigDecimal("50").compareTo(guardada.getMontoRecibido()));
+        assertEquals(0, new BigDecimal("20").compareTo(guardada.getCambio()));
+
+        Path copia = TicketPdf.reimpresion(guardada, ventas.obtenerDetallesVenta(venta.getId()));
+        String texto = PdfTextExtractor.getTextFromPage(new PdfReader(copia.toString()), 1);
+        assertTrue("el ticket reimpreso debe mostrar el pago: " + texto, texto.contains("$50.00"));
+        assertTrue("el ticket reimpreso debe mostrar el cambio: " + texto, texto.contains("Cambio") && texto.contains("$20.00"));
+    }
+
+    @Test
+    public void montoRecibidoMenorAlTotalSeRechazaSinGuardar() throws Exception {
+        Producto p = crearProducto("H-1", 5);
+        try {
+            ventas.registrarVenta(carrito(p, 1), null, "EFECTIVO", BigDecimal.ZERO, new BigDecimal("5"), null);
+            fail("Debió rechazar un pago menor al total");
+        } catch (ValidationException e) {
+            assertEquals(5, stock(p));
         }
     }
 

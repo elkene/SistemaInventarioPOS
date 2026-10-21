@@ -79,13 +79,14 @@ public class RespaldoYTicketTest {
         venta.setDescuento(new BigDecimal("5.00"));
         venta.setTotal(new BigDecimal("25.00"));
         venta.setMetodoPago("EFECTIVO");
+        venta.setMontoRecibido(new BigDecimal("50"));
         DetalleVenta d = new DetalleVenta();
         d.setProductoNombre("Refresco de cola 600 ml con un nombre largo para probar el ajuste de línea");
         d.setCantidad(3);
         d.setPrecioUnitario(BigDecimal.TEN);
         d.setSubtotal(new BigDecimal("30.00"));
 
-        Path ticket = TicketPdf.ticketVenta(venta, List.of(d), "admin", new BigDecimal("50"), new BigDecimal("25"));
+        Path ticket = TicketPdf.ticketVenta(venta, List.of(d), "admin");
         CorteCaja datosCorte = new CorteCaja();
         datosCorte.setId(7L);
         datosCorte.setUsuarioNombre("admin");

@@ -20,8 +20,8 @@ public class VentaDAOImpl extends GenericDAOImpl<Venta> implements IVentaDAO {
     
     @Override
     public void create(Venta venta) throws DataAccessException {
-        String sql = "INSERT INTO ventas (usuario_id, cliente_id, subtotal, descuento, total, metodo_pago, estado, observaciones) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO ventas (usuario_id, cliente_id, subtotal, descuento, total, metodo_pago, estado, observaciones, monto_recibido) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -34,6 +34,7 @@ public class VentaDAOImpl extends GenericDAOImpl<Venta> implements IVentaDAO {
             pstmt.setString(6, venta.getMetodoPago());
             pstmt.setString(7, venta.getEstado());
             pstmt.setString(8, venta.getObservaciones());
+            pstmt.setBigDecimal(9, venta.getMontoRecibido());
             
             int affectedRows = pstmt.executeUpdate();
             
@@ -380,6 +381,7 @@ public class VentaDAOImpl extends GenericDAOImpl<Venta> implements IVentaDAO {
         venta.setSubtotal(rs.getBigDecimal("subtotal"));
         venta.setDescuento(rs.getBigDecimal("descuento"));
         venta.setTotal(rs.getBigDecimal("total"));
+        venta.setMontoRecibido(rs.getBigDecimal("monto_recibido"));
         venta.setMetodoPago(rs.getString("metodo_pago"));
         venta.setEstado(rs.getString("estado"));
         venta.setObservaciones(rs.getString("observaciones"));

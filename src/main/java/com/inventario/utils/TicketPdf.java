@@ -54,18 +54,18 @@ public final class TicketPdf {
     private TicketPdf() {
     }
 
-    public static Path ticketVenta(Venta venta, List<DetalleVenta> detalles, String cajero,
-                                   BigDecimal pagoCon, BigDecimal cambio) throws IOException {
-        return ticket(venta, detalles, cajero, pagoCon, cambio, false);
+    public static Path ticketVenta(Venta venta, List<DetalleVenta> detalles, String cajero) throws IOException {
+        return ticket(venta, detalles, cajero, false);
     }
 
-    /** Copia de un ticket ya emitido; no lleva el pago ni el cambio porque no se guardan. */
+    /** Copia de un ticket ya emitido, con el mismo pago y cambio que el original. */
     public static Path reimpresion(Venta venta, List<DetalleVenta> detalles) throws IOException {
-        return ticket(venta, detalles, venta.getUsuarioNombre(), null, null, true);
+        return ticket(venta, detalles, venta.getUsuarioNombre(), true);
     }
 
     private static Path ticket(Venta venta, List<DetalleVenta> detalles, String cajero,
-                               BigDecimal pagoCon, BigDecimal cambio, boolean reimpresion) throws IOException {
+                               boolean reimpresion) throws IOException {
+        BigDecimal cambio = venta.getCambio();
         List<String> lineas = new ArrayList<>();
         if (reimpresion) {
             lineas.add("*** REIMPRESIÓN ***");
@@ -90,7 +90,7 @@ public final class TicketPdf {
             lineas.add(columnas("Descuento", "-" + dinero(venta.getDescuento())));
         }
         lineas.add(columnas("TOTAL", dinero(venta.getTotal())));
-        lineas.add(columnas("Pago (" + venta.getMetodoPago() + ")", dinero(pagoCon != null ? pagoCon : venta.getTotal())));
+        lineas.add(columnas("Pago (" + venta.getMetodoPago() + ")", dinero(venta.getMontoRecibido() != null ? venta.getMontoRecibido() : venta.getTotal())));
         if (cambio != null && cambio.signum() > 0) {
             lineas.add(columnas("Cambio", dinero(cambio)));
         }

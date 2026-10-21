@@ -64,6 +64,23 @@ Las pruebas crean una base de datos temporal y cubren estos casos:
 - El corte de caja se guarda con su diferencia y se rechazan montos negativos.
 - Un producto con historial se desactiva (y se reactiva); uno sin historial se borra.
 
+### Prueba de interfaz (de punta a punta)
+
+```bat
+probar-interfaz.bat
+```
+
+Equivale a `mvn test -Dui=true -Dtest=PruebaInterfazVentaTest`. Un robot maneja la interfaz real como lo haría un cajero:
+
+- da de alta productos, vende y valida el tope de stock;
+- revisa el descuento, el "Paga con" y el cambio;
+- imprime y reimprime el ticket;
+- hace el corte de caja con faltante;
+- anula la venta;
+- crea una cajera y comprueba sus permisos.
+
+Abre ventanas durante unos 40 segundos (no toques el mouse) y usa una base de datos temporal. Las capturas de cada pantalla quedan en `target\capturas-interfaz`. El `mvn test` normal la omite. Conviene correrla antes de entregar una versión nueva.
+
 ## Generar la versión para la laptop de la sucursal
 
 ```bat

@@ -202,7 +202,8 @@ public class PdfReportExporter {
         table.setWidthPercentage(100);
         table.setSpacingBefore(10);
         
-        float[] widths = {0.8f, 1.5f, 2f, 1.2f, 1.2f, 1f};
+        // Estado más ancho para que "COMPLETADA" quepa en un renglón
+        float[] widths = {0.6f, 1.5f, 1.9f, 1.1f, 1.2f, 1.4f};
         table.setWidths(widths);
         
         addTableHeader(table, new String[]{"N°", "Fecha y Hora", "Cliente", "Monto", "Método Pago", "Estado"});

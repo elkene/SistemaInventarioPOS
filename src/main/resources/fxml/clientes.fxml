@@ -26,6 +26,8 @@
         </HBox>
         
         <TableView fx:id="tablaClientes" VBox.vgrow="ALWAYS">
+        
+            <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
             <columns>
                 <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
                 <TableColumn fx:id="colCedula" text="RFC" prefWidth="120"/>

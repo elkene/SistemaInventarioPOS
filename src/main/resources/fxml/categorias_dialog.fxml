@@ -13,6 +13,8 @@
     <Label text="Gestionar Categorías" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
     
     <TableView fx:id="tablaCategorias" prefHeight="150" VBox.vgrow="NEVER" styleClass="dialog-table">
+    
+        <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
         <columns>
             <TableColumn fx:id="colNombre" text="Nombre" prefWidth="150" />
             <TableColumn fx:id="colDescripcion" text="Descripción" prefWidth="350"/>

@@ -72,7 +72,7 @@ empaquetar.bat
 
 1. Compila, corre las pruebas y genera `target\sistema-inventario-pos.jar` con todas las dependencias.
 2. Con `jpackage` (incluido en el JDK) crea `dist\SistemaInventarioPOS\`. Esa carpeta trae su propio Java, el ejecutable `SistemaInventarioPOS.exe` y el lanzador `Iniciar sistema.cmd`.
-3. Copia la carpeta `dist\SistemaInventarioPOS` completa a la laptop y crea un acceso directo en el escritorio a `Iniciar sistema.cmd` (funciona siempre) o al `.exe`.
+3. Copia la carpeta `dist\SistemaInventarioPOS` completa a la laptop y dale doble clic a `Crear acceso directo.cmd`: pone en el escritorio el acceso directo **Sistema POS** (usa el `javaw.exe` firmado, así que Windows no lo bloquea).
 
 Para un instalador `.msi` con acceso directo en el menú Inicio, instala [WiX Toolset 3](https://wixtoolset.org/) y ejecuta `empaquetar.bat msi`.
 

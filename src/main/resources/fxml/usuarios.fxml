@@ -18,6 +18,8 @@
         </HBox>
 
         <TableView fx:id="tablaUsuarios" VBox.vgrow="ALWAYS">
+
+            <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
             <columns>
                 <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
                 <TableColumn fx:id="colUsername" text="Usuario" prefWidth="180"/>

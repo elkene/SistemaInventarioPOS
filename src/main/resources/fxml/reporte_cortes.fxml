@@ -14,6 +14,8 @@
     </VBox>
 
     <TableView fx:id="tablaCortes" VBox.vgrow="ALWAYS" styleClass="dialog-table">
+
+        <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
         <columns>
             <TableColumn fx:id="colId" text="N°" prefWidth="50"/>
             <TableColumn fx:id="colFecha" text="Fecha y hora" prefWidth="140"/>

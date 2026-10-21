@@ -45,6 +45,8 @@
                 <Label text="Carrito de Compras" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
                 
                 <TableView fx:id="tablaCarrito" VBox.vgrow="ALWAYS" prefHeight="350">
+                
+                    <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
                     <columns>
                         <TableColumn fx:id="colCodigo" text="Código" prefWidth="100"/>
                         <TableColumn fx:id="colProducto" text="Producto" prefWidth="250"/>

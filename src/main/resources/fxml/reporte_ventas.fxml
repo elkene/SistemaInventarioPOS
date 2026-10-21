@@ -52,6 +52,8 @@
     <Label text="Detalle de Transacciones" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
     
     <TableView fx:id="tablaVentas" VBox.vgrow="ALWAYS" styleClass="dialog-table">
+    
+        <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
         <columns>
             <TableColumn fx:id="colId" text="N°" prefWidth="50"/>
             <TableColumn fx:id="colFecha" text="Fecha y Hora" prefWidth="140"/>

@@ -56,6 +56,8 @@
     <Label text="Detalle de Productos" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
     
     <TableView fx:id="tablaInventario" VBox.vgrow="ALWAYS" styleClass="dialog-table">
+    
+        <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
         <columns>
             <TableColumn fx:id="colCodigo" text="Código" prefWidth="100"/>
             <TableColumn fx:id="colNombre" text="Producto" prefWidth="200"/>

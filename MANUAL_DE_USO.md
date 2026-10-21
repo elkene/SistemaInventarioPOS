@@ -150,5 +150,5 @@ Si la laptop se descompone o la roban, **solo podrás recuperar la información 
 | "Demasiados intentos fallidos. Espere…" | Tras 5 contraseñas incorrectas seguidas, el inicio de sesión se bloquea 5 minutos. Espera y vuelve a intentarlo. |
 | "Credenciales inválidas" y estás seguro de la contraseña | Puede que tu usuario esté desactivado. Pide a un administrador que lo revise en **Usuarios**. |
 | "Stock insuficiente" | No hay suficientes piezas registradas. Si físicamente sí hay, haz un **Ajuste (conteo físico)**. |
-| Windows no deja abrir `SistemaInventarioPOS.exe` | Abre el sistema con **Iniciar sistema.cmd** (en la misma carpeta). Haz el acceso directo del escritorio a ese archivo. |
+| Windows no deja abrir `SistemaInventarioPOS.exe` | Abre el sistema con **Iniciar sistema.cmd** (en la misma carpeta). O mejor, dale doble clic a **Crear acceso directo.cmd** y usa el ícono **Sistema POS** del escritorio. |
 | Cualquier otro error | Revisa o envía el archivo `%USERPROFILE%\SistemaInventarioPOS\logs\aplicacion.log` a soporte. |

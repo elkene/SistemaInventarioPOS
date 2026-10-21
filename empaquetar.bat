@@ -36,6 +36,12 @@ if "%TIPO%"=="app-image" (
     > "dist\SistemaInventarioPOS\Iniciar sistema.cmd" (
         echo @start "" "%%~dp0runtime\bin\javaw.exe" -jar "%%~dp0app\sistema-inventario-pos.jar" %%*
     )
+    REM Doble clic en la laptop: crea en el escritorio el acceso directo "Sistema POS" a javaw.exe
+    > "dist\SistemaInventarioPOS\Crear acceso directo.cmd" (
+        echo @powershell -NoProfile -Command "$d='%%~dp0'; $s=(New-Object -ComObject WScript.Shell).CreateShortcut([Environment]::GetFolderPath('Desktop')+'\Sistema POS.lnk'); $s.TargetPath=$d+'runtime\bin\javaw.exe'; $s.Arguments='-jar \"'+$d+'app\sistema-inventario-pos.jar\"'; $s.WorkingDirectory=$d; $s.IconLocation=$d+'SistemaInventarioPOS.exe,0'; $s.Description='Sistema de Inventario y Punto de Venta'; $s.Save()"
+        echo @echo Acceso directo "Sistema POS" creado en el escritorio.
+        echo @pause
+    )
 )
 
 rmdir /s /q dist\entrada
